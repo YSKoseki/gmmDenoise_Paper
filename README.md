@@ -1,2 +1,2 @@
-# PCR_Artifact_Simulations
-R code for the simulations of PCR artifact generation
+# gmmDenoise_Paper
+R code for Koseki et al. (In preparation)
