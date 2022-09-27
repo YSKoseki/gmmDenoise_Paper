@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # 02_Cutadapt_DRA006638.sh
-# Last updated on 2022.7.15 by YK
-# A shell script to trim the MiFish primer pair away from MiSeq paired-end sequencing reads
+# Last updated on 2022.9.27 by YK
+# A shell script to trim the pair of primers from paired-end sequencing reads
 
 # Set variables: directory paths, FASTQ suffixes, and primer sequences
 INDIR="./01-SRAfastq_DRA006638/FASTQ"
