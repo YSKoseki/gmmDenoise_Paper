@@ -1,5 +1,5 @@
 # 09_GMMdn_DRA006638.R
-# Last updated on 2022.7.27 by YK
+# Last updated on 2022.10.6 by YK
 # An R script to infer true ASVs by the denoising method based on Gaussian mixture modeling (GMM)
 # R 4.1.2
 
@@ -190,9 +190,9 @@ reads_tib <- thresh_tab[, "norm"] %>%
     z <- x %>%
       mutate(hapgroup = case_when(reads > y & istruehap == "True" ~
                                     factor("True pos", levels = hapgroup_lev),
-                                  reads > y & istruehap == "False" ~
-                                    factor("False neg", levels = hapgroup_lev),
                                   reads <= y & istruehap == "True" ~
+                                    factor("False neg", levels = hapgroup_lev),
+                                  reads > y & istruehap == "False" ~
                                     factor("False pos", levels = hapgroup_lev),
                                   reads <= y & istruehap == "False" ~
                                     factor("True neg", levels = hapgroup_lev)))
