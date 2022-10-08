@@ -78,29 +78,36 @@ summary_tib <- sequencing %>% nest_by(repl, seq_type) %>%
   ) %>%
   select(repl, seq_type, seq_n, sum_reads)
 write_csv(summary_tib, paste0(path_out, "/02-summary_tib.csv"))
-meansd_tib <- summary_tib %>% nest_by(seq_type) %>%
+
+summary_seq_tib <- summary_tib %>% nest_by(seq_type) %>%
   mutate(
     mean_seq_n = mean(data$seq_n),
     sd_seq_n = sd(data$seq_n),
-    mean_sum_reads = mean(data$sum_reads),
-    sd_sum_reads = sd(data$sum_reads)
-  ) %>%
-  select(seq_type, mean_seq_n, sd_seq_n, mean_sum_reads, sd_sum_reads)
-write_csv(meansd_tib, paste0(path_out, "/03-meansd_tib.csv"))
-minmax_read_tib <- sequencing %>% nest_by(seq_type) %>%
-  mutate(
-    min_read_n = min(data$reads),
-    max_read_n = max(data$reads)
-  ) %>%
-  select(seq_type, min_read_n, max_read_n)
-minmax_seq_tib <- summary_tib %>% nest_by(seq_type) %>%
-  mutate(
     min_seq_n = min(data$seq_n),
     max_seq_n = max(data$seq_n)
   ) %>%
-  select(seq_type, min_seq_n, max_seq_n)
-minmax_tib <- full_join(minmax_seq_tib, minmax_read_tib, by = "seq_type")
-write_csv(minmax_tib, paste0(path_out, "/04-minmax_tib.csv"))
+  select(seq_type, mean_seq_n, sd_seq_n, min_seq_n, max_seq_n)
+write_csv(summary_seq_tib, paste0(path_out, "/03-summary_seq_tib.csv"))
+
+summary_sumread_tib <- summary_tib %>% nest_by(seq_type) %>%
+  mutate(
+    mean_sum_reads = mean(data$sum_reads),
+    sd_sum_reads = sd(data$sum_reads),
+    min_sum_reads = min(data$sum_reads),
+    max_sum_reads = max(data$sum_reads)
+  ) %>%
+  select(seq_type, mean_sum_reads, sd_sum_reads, min_sum_reads, max_sum_reads)
+write_csv(summary_sumread_tib, paste0(path_out, "/04-summary_sumread_tib.csv"))
+
+summary_seqread_tib <- sequencing %>% nest_by(seq_type) %>%
+  mutate(
+    mean_read_n = mean(data$reads),
+    sd_read_n = sd(data$reads),
+    min_read_n = min(data$reads),
+    max_read_n = max(data$reads)
+  ) %>%
+  select(seq_type, mean_read_n, sd_read_n, min_read_n, max_read_n)
+write_csv(summary_seqread_tib, paste0(path_out, "/05-summary_seqread_tib.csv"))
 
 # Save R ojbects
 saveRDS(sequencing, paste0(path_obj, "/sequencing.obj"))
