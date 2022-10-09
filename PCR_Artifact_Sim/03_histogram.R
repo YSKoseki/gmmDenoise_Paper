@@ -105,12 +105,23 @@ plot.hist2 <- function(
   return(h)
 }
 theme_set(cowplot::theme_cowplot())
-(hist <- plot.hist2())
-save_plot(paste0(path_out, "/03-Fig_hist_full.svg"), hist, base_asp = 0.9)
+(hist2 <- plot.hist2())
+save_plot(paste0(path_out, "/03-Fig_hist_full.svg"), hist2, base_asp = 0.9)
+
+# A grid plot of the two histograms
+theme_set(cowplot::theme_cowplot())
+(hist_grid <- cowplot::plot_grid(
+  hist2 + theme(axis.title.x=element_blank()),
+  hist,
+  align = "hv", nrow=2, label_x = c(.87), label_y = c(.95, .95),
+  labels=c("(a)", "(b)")
+))
+save_plot(paste0(path_out, "/04-Fig_histo_grid.svg"), hist_grid,
+          base_height = 5, base_asp = .9, ncol = 1, nrow = 1)
 
 # Save R objects
 saveRDS(distr_tib, paste0(path_obj, "/distr_tib.obj"))
-saveRDS(hist, paste0(path_obj, "/histogram.obj"))
+saveRDS(hist_grid, paste0(path_obj, "/hist_grid.obj"))
 
 # Save workspace and session info
 save.image(paste0(path_out, "/histogram.RData"))
