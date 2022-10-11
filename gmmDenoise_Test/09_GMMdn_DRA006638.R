@@ -65,8 +65,8 @@ theme_set(cowplot::theme_cowplot())
   fig_scatter[["dada"]] + xlab(""),
   fig_scatter[["uno2"]] + theme(axis.title.y=element_blank()),
   fig_scatter[["nodn"]] + xlab("") + theme(axis.title.y=element_blank()),
-  nrow=1, label_x=c(.15, .05, .06), label_y=.95,
-  labels=c("DADA2", "UNOISE3", "NON-DN")
+  nrow=1, label_x=c(.15, .06, .06), label_y=.95, hjust=-.2,
+  labels=c("(a) DADA2", "(b) UNOISE3", "(c) NON-DN")
 ))
 save_plot(paste0(path_output, "/03-Fig_scatter_grid.svg"), fig_scatter_grid,
           base_asp=0.9, ncol=3, nrow=1)
@@ -86,8 +86,8 @@ theme_set(cowplot::theme_cowplot())
     scale_y_continuous(limits=c(0, 800), expand=c(0, 0)) +
     xlab("") +
     theme(axis.title.y=element_blank()),
-  nrow=1, label_x=c(.62, .52, .56), label_y=.95,
-  labels=c("DADA2", "UNOISE3", "NON-DN")
+  nrow=1, label_x=c(.18, .1, .13), label_y=.95, hjust=-.2,
+  labels=c("(a) DADA2", "(b) UNOISE3", "(c) NON-DN")
 ))
 save_plot(paste0(path_output, "/04-Fig_histo_grid.svg"), fig_histo_grid,
           base_asp=0.9, ncol=3, nrow=1)
@@ -102,8 +102,8 @@ theme_set(cowplot::theme_cowplot())
   fig_cv[["dada"]] + xlab(""),
   fig_cv[["uno2"]] + theme(axis.title.y=element_blank()),
   fig_cv[["nodn"]] + xlab("") + theme(axis.title.y=element_blank()),
-  nrow=1, label_x=c(.62, .10, .10), label_y=c(.95, .85, .95),
-  labels=c("DADA2", "UNOISE3", "NON-DN")
+  nrow=1, label_x=c(.59, .51, .10), label_y=c(.98, .98, .98), hjust=-.28,
+  labels=c("(a) DADA2", "(b) UNOISE3", "(c) NON-DN")
 ))
 save_plot(paste0(path_output, "/05-Fig_cv_grid.svg"), fig_cv_grid,
           base_asp=0.9, ncol=3, nrow=1)
@@ -122,16 +122,18 @@ theme_set(cowplot::theme_cowplot())
 (fig_pdf_grid <- cowplot::plot_grid(
   fig_pdf[["dada"]] +
     scale_y_continuous(limits=c(0, 20), expand=c(0, 0)) +
-    xlab(""),
+    xlab("") +
+    theme(legend.position=c(.92, .85)),
   fig_pdf[["uno2"]] +
     scale_y_continuous(limits=c(0, 20), expand=c(0, 0)) +
     theme(axis.title.y=element_blank(),
-          legend.position=c(.42, .85)),
+          legend.position=c(.92, .85)),
   fig_pdf[["nodn"]] + xlab("") +
     scale_y_continuous(limits=c(0, 800), expand=c(0, 0)) +
-    theme(axis.title.y=element_blank()),
-  nrow=1, label_x=c(.15, .06, .5), label_y=.95,
-  labels=c("DADA2", "UNOISE3", "NON-DN")
+    theme(axis.title.y=element_blank(),
+          legend.position=c(.92, .85)),
+  nrow=1, label_x=c(.56, .48, .52), label_y=.95, hjust=-.22,
+  labels=c("(a) DADA2", "(b) UNOISE3", "(c) NON-DN")
 ))
 save_plot(paste0(path_output, "/06-Fig_pdf_grid.svg"), fig_pdf_grid,
           base_asp=0.9, ncol=3, nrow=1)
@@ -170,13 +172,13 @@ fig_pdf_grid2 <- cowplot::plot_grid(
   fig_pdf2[["uno2"]] +
     scale_y_continuous(limits=c(0, 20), expand=c(0, 0)) +
     theme(axis.title.y=element_blank(),
-          legend.position=c(.40, .9)),
+          legend.position=c(.94, .9)),
   fig_pdf2[["nodn"]] + xlab("") +
     scale_y_continuous(limits=c(0, 800), expand=c(0, 0)) +
     theme(axis.title.y=element_blank(),
           legend.position=c(.9, .9)),
-  nrow=1, label_x=c(.15, .06, .5), label_y=.99,
-  labels=c("DADA2", "UNOISE3", "NON-DN")
+  nrow=1, label_x=c(.17, .5, .5), label_y=.97, hjust=-.22,
+  labels=c("(a) DADA2", "(b) UNOISE3", "(c) NON-DN")
 )
 save_plot(paste0(path_output, "/08-Fig_pdf_grid2.svg"), fig_pdf_grid2,
           base_asp=0.9, ncol=3, nrow=1)
@@ -228,8 +230,8 @@ theme_set(cowplot::theme_cowplot())
   fig_scatter2[["dada"]] + xlab(""),
   fig_scatter2[["uno2"]] + theme(axis.title.y=element_blank()),
   fig_scatter2[["nodn"]] + xlab("") + theme(axis.title.y=element_blank()),
-  nrow=1, label_x=c(.15, .05, .06), label_y=.95,
-  labels=c("DADA2", "UNOISE3", "NON-DN")
+  nrow=1, label_x=c(.15, .06, .06), label_y=.95, hjust=-.2,
+  labels=c("(a) DADA2", "(b) UNOISE3", "(c) NON-DN")
 ))
 save_plot(paste0(path_output, "/10-Fig_scatter_grid2.svg"), fig_scatter_grid2,
           base_asp=0.9, ncol=3, nrow=1)
