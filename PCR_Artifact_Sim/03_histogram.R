@@ -69,6 +69,16 @@ plot.hist <- function(
       values = c(alpha("firebrick", .8), alpha("black", .6)),
       labels = c("True", "False")
     ) +
+    geom_density(data = sequencing[sequencing$seq_type == "True", ],
+                 aes(x = log_reads,
+                     y = ..density.. * 0.2 * sum(distr_tib[distr_tib$seq_type == "True", ]$count)),
+                 adjust = 4,
+                 color = "firebrick", fill = NA) +
+    geom_density(data = sequencing[sequencing$seq_type == "False", ],
+                 aes(x = log_reads,
+                     y = ..density.. * 0.2 * sum(distr_tib[distr_tib$seq_type == "False", ]$count)),
+                 adjust = 4,
+                 color = "black", fill = NA) +
     scale_x_continuous(limit = c(0, xupper), breaks = seq(0, xupper, 1)) +
     coord_cartesian(ylim = c(0, 100), expand = FALSE) +
     labs(x = "Log10(read size)", y = "Frequency") +
@@ -92,6 +102,16 @@ plot.hist2 <- function(
       values = c(alpha("firebrick", .8), alpha("black", .6)),
       labels = c("True", "False")
     ) +
+    geom_density(data = sequencing[sequencing$seq_type == "True", ],
+                 aes(x = log_reads,
+                     y = ..density.. * 0.2 * sum(distr_tib[distr_tib$seq_type == "True", ]$count)),
+                 adjust = 4,
+                 color = "firebrick", fill = NA) +
+    geom_density(data = sequencing[sequencing$seq_type == "False", ],
+                 aes(x = log_reads,
+                     y = ..density.. * 0.2 * sum(distr_tib[distr_tib$seq_type == "False", ]$count)),
+                 adjust = 4,
+                 color = "black", fill = NA) +
     scale_x_continuous(
       limit = c(0, xupper), breaks = seq(0, xupper, 1), expand = c(0, 0)) +
     scale_y_continuous(
