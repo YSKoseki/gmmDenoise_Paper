@@ -1,5 +1,5 @@
 # 09_GMMdn_DRA006638.R
-# Last updated on 2022.10.6 by YK
+# Last updated on 2022.10.13 by YK
 # An R script to infer true ASVs by the denoising method based on Gaussian mixture modeling (GMM)
 # R 4.1.2
 
@@ -86,8 +86,8 @@ theme_set(cowplot::theme_cowplot())
     scale_y_continuous(limits=c(0, 800), expand=c(0, 0)) +
     xlab("") +
     theme(axis.title.y=element_blank()),
-  nrow=1, label_x=c(.18, .1, .13), label_y=.95, hjust=-.2,
-  labels=c("(a) DADA2", "(b) UNOISE3", "(c) NON-DN")
+  nrow=1, label_x=c(.59, .48, .52), label_y=.98, hjust=-.80,
+  labels=c("DADA2", "UNOISE3", "NON-DN")
 ))
 save_plot(paste0(path_output, "/04-Fig_histo_grid.svg"), fig_histo_grid,
           base_asp=0.9, ncol=3, nrow=1)
@@ -102,8 +102,8 @@ theme_set(cowplot::theme_cowplot())
   fig_cv[["dada"]] + xlab(""),
   fig_cv[["uno2"]] + theme(axis.title.y=element_blank()),
   fig_cv[["nodn"]] + xlab("") + theme(axis.title.y=element_blank()),
-  nrow=1, label_x=c(.59, .51, .10), label_y=c(.98, .98, .98), hjust=-.28,
-  labels=c("(a) DADA2", "(b) UNOISE3", "(c) NON-DN")
+  nrow=1, label_x=c(.59, .48, 0), label_y=.98, hjust=-.80,
+  labels=c("DADA2", "UNOISE3", "NON-DN")
 ))
 save_plot(paste0(path_output, "/05-Fig_cv_grid.svg"), fig_cv_grid,
           base_asp=0.9, ncol=3, nrow=1)
@@ -123,17 +123,17 @@ theme_set(cowplot::theme_cowplot())
   fig_pdf[["dada"]] +
     scale_y_continuous(limits=c(0, 20), expand=c(0, 0)) +
     xlab("") +
-    theme(legend.position=c(.92, .85)),
+    theme(legend.position=c(.94, .9)),
   fig_pdf[["uno2"]] +
     scale_y_continuous(limits=c(0, 20), expand=c(0, 0)) +
     theme(axis.title.y=element_blank(),
-          legend.position=c(.92, .85)),
+          legend.position=c(.94, .9)),
   fig_pdf[["nodn"]] + xlab("") +
     scale_y_continuous(limits=c(0, 800), expand=c(0, 0)) +
     theme(axis.title.y=element_blank(),
-          legend.position=c(.92, .85)),
-  nrow=1, label_x=c(.56, .48, .52), label_y=.95, hjust=-.22,
-  labels=c("(a) DADA2", "(b) UNOISE3", "(c) NON-DN")
+          legend.position=c(.94, .9)),
+  nrow=1, label_x=c(.57, .55, .56), label_y=.97, hjust=-.35,
+  labels=c("DADA2", "UNOISE3", "NON-DN")
 ))
 save_plot(paste0(path_output, "/06-Fig_pdf_grid.svg"), fig_pdf_grid,
           base_asp=0.9, ncol=3, nrow=1)
@@ -176,9 +176,9 @@ fig_pdf_grid2 <- cowplot::plot_grid(
   fig_pdf2[["nodn"]] + xlab("") +
     scale_y_continuous(limits=c(0, 800), expand=c(0, 0)) +
     theme(axis.title.y=element_blank(),
-          legend.position=c(.9, .9)),
-  nrow=1, label_x=c(.17, .5, .5), label_y=.97, hjust=-.22,
-  labels=c("(a) DADA2", "(b) UNOISE3", "(c) NON-DN")
+          legend.position=c(.94, .9)),
+  nrow=1, label_x=c(.17, .55, .56), label_y=.97, hjust=-.35,
+  labels=c("DADA2", "UNOISE3", "NON-DN")
 )
 save_plot(paste0(path_output, "/08-Fig_pdf_grid2.svg"), fig_pdf_grid2,
           base_asp=0.9, ncol=3, nrow=1)
@@ -235,6 +235,50 @@ theme_set(cowplot::theme_cowplot())
 ))
 save_plot(paste0(path_output, "/10-Fig_scatter_grid2.svg"), fig_scatter_grid2,
           base_asp=0.9, ncol=3, nrow=1)
+
+# Compound plot for publication
+theme_set(cowplot::theme_cowplot())
+(fig_publ <- cowplot::plot_grid(
+  fig_histo[["dada"]] +
+    scale_y_continuous(limits=c(0, 20), expand=c(0, 0)) +
+    xlab(""),
+  fig_histo[["uno2"]] +
+    scale_y_continuous(limits=c(0, 20), expand=c(0, 0)) +
+    theme(axis.title.y=element_blank()),
+  fig_histo[["nodn"]] +
+    scale_y_continuous(limits=c(0, 800), expand=c(0, 0)) +
+    xlab("") +
+    theme(axis.title.y=element_blank()),
+  fig_cv[["dada"]] +
+    scale_y_continuous(limits=c(-44, -37)) +
+    xlab(""),
+  fig_cv[["uno2"]] +
+    scale_y_continuous(limits=c(-150, 0)) +
+    theme(axis.title.y=element_blank()),
+  fig_cv[["nodn"]] +
+    scale_y_continuous(limits=c(-600, -200)) +
+    xlab("") +
+    theme(axis.title.y=element_blank()),
+  fig_pdf2[["dada"]] +
+    scale_y_continuous(limits=c(0, 20), expand=c(0, 0)) +
+    theme(legend.position=c(.4, .9)) +
+    xlab(""),
+  fig_pdf2[["uno2"]] +
+    scale_y_continuous(limits=c(0, 20), expand=c(0, 0)) +
+    theme(axis.title.y=element_blank(),
+          legend.position=c(.97, .9)),
+  fig_pdf2[["nodn"]] + xlab("") +
+    scale_y_continuous(limits=c(0, 800), expand=c(0, 0)) +
+    theme(axis.title.y=element_blank(),
+          legend.position=c(.94, .9)),
+  align="hv", nrow=3,
+  label_x=c(.12, .1, .11, .12, .1, .11, .12, .49, .52), label_y=.97,
+  labels=c("(a) DADA2", "(b) UNOISE3", "(c) NON-DN",
+           "(d) DADA2", "(e) UNOISE3", "(f) NON-DN",
+           "(g) DADA2", "(h) UNOISE3", "(i) NON-DN")
+))
+save_plot(paste0(path_output, "/11-Fig_publ.svg"), fig_publ,
+          base_asp=1, ncol=3, nrow=3)
 
 # Save data
 ## Save R objects
