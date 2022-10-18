@@ -1,5 +1,5 @@
 # 11_GMMdn_DRA005106.R
-# Last updated on 2022.10.17 by YK
+# Last updated on 2022.10.18 by YK
 # An R script to infer read count cut-off threshold for ASVs, based on Gaussian mixture modeling (GMM)
 # R 4.1.2
 
@@ -189,10 +189,10 @@ theme_set(cowplot::theme_cowplot())
     theme(axis.title.y=element_blank(),
           legend.position=c(.94, .85)),
   align="hv", nrow=3,
-  label_x=c(.56, .49, .65, .56, .49, .65, .56, .49, .65), label_y=.97,
-  labels=c("(a) DADA2", "(b) UNOISE3", "(c) MIFS",
-           "(d) DADA2", "(e) UNOISE3", "(f) MIFS",
-           "(g) DADA2", "(h) UNOISE3", "(i) MIFS")
+  label_x=c(.56, .49, .53, .56, .49, .53, .56, .49, .53), label_y=.97,
+  labels=c("(a) DADA2", "(b) UNOISE3", "(c) NON-DN",
+           "(d) DADA2", "(e) UNOISE3", "(f) NON-DN",
+           "(g) DADA2", "(h) UNOISE3", "(i) NON-DN")
 ))
 save_plot(paste0(path_output, "/08-Fig_publ.svg"), fig_publ,
           base_asp=1, ncol=3, nrow=3)
