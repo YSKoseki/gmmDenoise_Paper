@@ -1,5 +1,5 @@
 # 09_GMMdn_DRA006638.R
-# Last updated on 2022.10.13 by YK
+# Last updated on 2022.11.9 by YK
 # An R script to infer true ASVs by the denoising method based on Gaussian mixture modeling (GMM)
 # R 4.1.2
 
@@ -53,7 +53,7 @@ fig_scatter <- reads_tib %>%
     y <- x %>%
       ggplot(aes(x=nrepl, y=log10(reads), color=istruehap)) +
       geom_point(shape=1, size=3) +
-      scale_color_manual(values=c("firebrick", "black")) +
+      scale_color_manual(values=c("black", "firebrick")) +
       scale_x_continuous(limits=c(1, 15), breaks=seq(1, 15, 2)) +
       scale_y_continuous(limits=c(0, 6), breaks=seq(0, 6, 1)) +
       xlab("Detection rate among 15 PCR replicates") +
@@ -217,7 +217,7 @@ fig_scatter2 <- thresh_tab[, "log"] %>%
       ggplot(aes(x=nrepl, y=log10(reads), shape=hapgroup, color=hapgroup)) +
       geom_point(size=3) +
       scale_shape_manual(values=c(1, 4, 1)) +
-      scale_color_manual(values=c("firebrick", "black", "black")) +
+      scale_color_manual(values=c("black", "firebrick", "firebrick")) +
       scale_x_continuous(limits=c(1, 15), breaks=seq(1, 15, 2)) +
       scale_y_continuous(limits=c(0, 6), breaks=seq(0, 6, 1)) +
       geom_hline(yintercept = y, linetype=2) +
