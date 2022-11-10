@@ -66,19 +66,19 @@ plot.hist <- function(
     ggplot(aes(x = mids, y = count, fill = seq_type))  +
     geom_bar(width = first(diff(breaks)), stat = "identity") +
     scale_fill_manual(
-      values = c(alpha("firebrick", .8), alpha("black", .6)),
+      values = c(alpha("black", .8), alpha("firebrick", .6)),
       labels = c("True", "False")
     ) +
     geom_density(data = sequencing[sequencing$seq_type == "True", ],
                  aes(x = log_reads,
                      y = ..density.. * 0.2 * sum(distr_tib[distr_tib$seq_type == "True", ]$count)),
                  adjust = 4,
-                 color = "firebrick", fill = NA) +
+                 color = "black", fill = NA) +
     geom_density(data = sequencing[sequencing$seq_type == "False", ],
                  aes(x = log_reads,
                      y = ..density.. * 0.2 * sum(distr_tib[distr_tib$seq_type == "False", ]$count)),
                  adjust = 4,
-                 color = "black", fill = NA) +
+                 color = "firebrick", fill = NA) +
     scale_x_continuous(limit = c(0, xupper), breaks = seq(0, xupper, 1)) +
     coord_cartesian(ylim = c(0, 100), expand = FALSE) +
     labs(x = "Log10(read size)", y = "Frequency") +
@@ -99,19 +99,19 @@ plot.hist2 <- function(
     ggplot(aes(x = mids, y = count, fill = seq_type))  +
     geom_bar(width = first(diff(breaks)), stat = "identity") +
     scale_fill_manual(
-      values = c(alpha("firebrick", .8), alpha("black", .6)),
+      values = c(alpha("black", .8), alpha("firebrick", .6)),
       labels = c("True", "False")
     ) +
     geom_density(data = sequencing[sequencing$seq_type == "True", ],
                  aes(x = log_reads,
                      y = ..density.. * 0.2 * sum(distr_tib[distr_tib$seq_type == "True", ]$count)),
                  adjust = 4,
-                 color = "firebrick", fill = NA) +
+                 color = "black", fill = NA) +
     geom_density(data = sequencing[sequencing$seq_type == "False", ],
                  aes(x = log_reads,
                      y = ..density.. * 0.2 * sum(distr_tib[distr_tib$seq_type == "False", ]$count)),
                  adjust = 4,
-                 color = "black", fill = NA) +
+                 color = "firebrick", fill = NA) +
     scale_x_continuous(
       limit = c(0, xupper), breaks = seq(0, xupper, 1), expand = c(0, 0)) +
     scale_y_continuous(
