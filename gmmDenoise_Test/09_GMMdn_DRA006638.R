@@ -1,5 +1,5 @@
 # 09_GMMdn_DRA006638.R
-# Last updated on 2022.11.9 by YK
+# Last updated on 2022.11.13 by YK
 # An R script to infer true ASVs by the denoising method based on Gaussian mixture modeling (GMM)
 # R 4.1.2
 
@@ -51,14 +51,17 @@ write.csv(truefalse_pre, paste0(path_output, "/02-truefalse_pre.csv"))
 fig_scatter <- reads_tib %>%
   lapply(function(x) {
     y <- x %>%
-      ggplot(aes(x=nrepl, y=log10(reads), color=istruehap)) +
-      geom_point(shape=1, size=3) +
+      ggplot(aes(x=nrepl, y=log10(reads),
+                 color=istruehap, fill=istruehap, alpha=istruehap)) +
+      geom_point(shape=21, size=2) +
       scale_color_manual(values=c("black", "firebrick")) +
+      scale_fill_manual(values=c("black", "firebrick")) +
+      scale_alpha_manual(values=c(.6, .3)) +
       scale_x_continuous(limits=c(1, 15), breaks=seq(1, 15, 2)) +
       scale_y_continuous(limits=c(0, 6), breaks=seq(0, 6, 1)) +
       xlab("Detection rate among 15 PCR replicates") +
       ylab("log10(Total reads)") +
-      guides(color="none")
+      guides(color="none", fill="none", alpha="none")
   })
 theme_set(cowplot::theme_cowplot())
 (fig_scatter_grid <- cowplot::plot_grid(
@@ -214,16 +217,21 @@ fig_scatter2 <- thresh_tab[, "log"] %>%
   as.list() %>%
   map2(reads_tib, ., function(x, y) {
     z <- x %>%
-      ggplot(aes(x=nrepl, y=log10(reads), shape=hapgroup, color=hapgroup)) +
+      ggplot(aes(
+        x=nrepl, y=log10(reads),
+        shape=hapgroup, color=hapgroup, fill=hapgroup, alpha=hapgroup
+      )) +
       geom_point(size=3) +
-      scale_shape_manual(values=c(1, 4, 1)) +
+      scale_shape_manual(values=c(21, 4, 21)) +
       scale_color_manual(values=c("black", "firebrick", "firebrick")) +
+      scale_fill_manual(values=c("black", "firebrick", "firebrick")) +
+      scale_alpha_manual(values=c(.6, .9, .3)) +
       scale_x_continuous(limits=c(1, 15), breaks=seq(1, 15, 2)) +
       scale_y_continuous(limits=c(0, 6), breaks=seq(0, 6, 1)) +
       geom_hline(yintercept = y, linetype=2) +
       xlab("Detection rate among 15 PCR replicates") +
       ylab("log10(Total reads)") +
-      guides(color="none", shape="none")
+      guides(shape="none", color="none", fill="none", alpha="none")
   })
 theme_set(cowplot::theme_cowplot())
 (fig_scatter_grid2 <- cowplot::plot_grid(
