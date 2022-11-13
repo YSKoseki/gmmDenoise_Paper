@@ -53,10 +53,10 @@ fig_scatter <- reads_tib %>%
     y <- x %>%
       ggplot(aes(x=nrepl, y=log10(reads),
                  color=istruehap, fill=istruehap, alpha=istruehap)) +
-      geom_point(shape=21, size=2) +
+      geom_point(shape=21, size=3) +
       scale_color_manual(values=c("black", "firebrick")) +
       scale_fill_manual(values=c("black", "firebrick")) +
-      scale_alpha_manual(values=c(.6, .3)) +
+      scale_alpha_manual(values=c(.5, .3)) +
       scale_x_continuous(limits=c(1, 15), breaks=seq(1, 15, 2)) +
       scale_y_continuous(limits=c(0, 6), breaks=seq(0, 6, 1)) +
       xlab("Detection rate among 15 PCR replicates") +
@@ -225,7 +225,7 @@ fig_scatter2 <- thresh_tab[, "log"] %>%
       scale_shape_manual(values=c(21, 4, 21)) +
       scale_color_manual(values=c("black", "firebrick", "firebrick")) +
       scale_fill_manual(values=c("black", "firebrick", "firebrick")) +
-      scale_alpha_manual(values=c(.6, .9, .3)) +
+      scale_alpha_manual(values=c(.5, .8, .3)) +
       scale_x_continuous(limits=c(1, 15), breaks=seq(1, 15, 2)) +
       scale_y_continuous(limits=c(0, 6), breaks=seq(0, 6, 1)) +
       geom_hline(yintercept = y, linetype=2) +
