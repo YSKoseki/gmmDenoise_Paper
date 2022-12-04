@@ -66,7 +66,7 @@ plot.hist <- function(
     ggplot(aes(x = mids, y = count, fill = seq_type))  +
     geom_bar(width = first(diff(breaks)), stat = "identity") +
     scale_fill_manual(
-      values = c(alpha("black", .8), alpha("firebrick", .6)),
+      values = c(alpha("black", .8), alpha("#DB8F8F", 1)),
       labels = c("True", "False")
     ) +
     geom_density(data = sequencing[sequencing$seq_type == "True", ],
@@ -99,7 +99,7 @@ plot.hist2 <- function(
     ggplot(aes(x = mids, y = count, fill = seq_type))  +
     geom_bar(width = first(diff(breaks)), stat = "identity") +
     scale_fill_manual(
-      values = c(alpha("black", .8), alpha("firebrick", .6)),
+      values = c(alpha("black", .8), alpha("#DB8F8F", 1)),
       labels = c("True", "False")
     ) +
     geom_density(data = sequencing[sequencing$seq_type == "True", ],
