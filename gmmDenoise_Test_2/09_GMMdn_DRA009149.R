@@ -1,5 +1,5 @@
 # 09_GMMdn_DRA009149.R
-# Last updated on 2022.11.14 by YK
+# Last updated on 2022.12.9 by YK
 # An R script to infer true ASVs by the denoising method based on Gaussian mixture modeling (GMM)
 # R 4.1.2
 
@@ -256,13 +256,12 @@ fig_scatter2 <- thresh_tab[, "log"] %>%
       ggplot() +
       geom_point(data=filter(x, istruehap=="False"),
                  aes(x=nrepl, y=log10(reads),
-                     shape=hapgroup, color=hapgroup, fill=hapgroup, alpha=hapgroup),
+                     color=hapgroup, fill=hapgroup, alpha=hapgroup),
                  size=2) +
       geom_point(data=filter(x, istruehap=="True"),
                  aes(x=nrepl, y=log10(reads),
-                     shape=hapgroup, color=hapgroup, fill=hapgroup, alpha=istruehap),
+                     color=hapgroup, fill=hapgroup, alpha=istruehap),
                  size=2) +
-      scale_shape_manual(values=c(21, 4, 21)) +
       scale_color_manual(values=c("firebrick", "firebrick", "black")) +
       scale_fill_manual(values=c("firebrick", "firebrick", "black")) +
       scale_alpha_manual(values=c(.5, .8, .3)) +
