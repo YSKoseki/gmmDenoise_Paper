@@ -1,5 +1,5 @@
 # 13_DNfocal_DRA005106.R
-# Last updated on 2022.12.04 by YK
+# Last updated on 2022.12.18 by YK
 # An R script to generate graphical representations of the GMM-based denoising results in a focal species
 # R 4.1.2
 
@@ -170,13 +170,17 @@ tree_focal_heat <- list(phylo_pre3, tree_focal, datnam, xmax4) %>%
     p2 <- ggplot(df, aes(x = sample, y = label)) +
       geom_tile(aes(fill = logabund), color = "white", size = 1) +
       scale_fill_gradient(low = "#fae7e7", high = "black", name = "Abund") +
+      scale_y_discrete(expand = c(0, 0)) +
       theme(axis.title.x = element_text(size = rel(1.8)),
             axis.text.x = element_text(size = rel(1.5), angle = 90, hjust = 1),
             axis.text.y = element_blank(),
-            axis.line.x = element_line(size = .2),
-            axis.line.y = element_line(size = .2),
-            axis.ticks.x = element_line(size = .2),
-            axis.ticks.y = element_line(size = .2)) +
+            axis.line.x = element_line(size = .5),
+            axis.line.y = element_line(size = .5),
+            axis.ticks.x = element_line(size = .5),
+            axis.ticks.y = element_line(size = .5),
+            panel.background = element_rect(fill = "white"),
+            legend.title = element_text(size = rel(1.3)),
+            legend.text = element_text(size = rel(1.3))) +
       xlab("Sample") +
       ylab(NULL)
     comp.p <- p2 %>% aplot::insert_left(p, width = .5)

@@ -82,7 +82,7 @@ plot.hist <- function(
     scale_x_continuous(limit = c(0, xupper), breaks = seq(0, xupper, 1)) +
     coord_cartesian(ylim = c(0, 100), expand = FALSE) +
     labs(x = "Log10(read size)", y = "Frequency") +
-    theme(legend.position = c(.9, .75), legend.justification = c(1, 1)) +
+    theme(legend.position = c(.95, .85), legend.justification = c(1, 1)) +
     guides(
       fill = guide_legend(title = NULL),
     )
@@ -118,7 +118,7 @@ plot.hist2 <- function(
       limit = c(0, 2000), breaks = seq(0, 2000, 500), expand = c(0, 0)
     ) +
     labs(x = "Log10(read size)", y = "Frequency") +
-    theme(legend.position = c(.9, .75), legend.justification = c(1, 1)) +
+    theme(legend.position = c(.95, .85), legend.justification = c(1, 1)) +
     guides(
       fill = guide_legend(title = NULL),
     )
@@ -133,11 +133,11 @@ theme_set(cowplot::theme_cowplot())
 (hist_grid <- cowplot::plot_grid(
   hist2 + theme(axis.title.x=element_blank()),
   hist,
-  align = "hv", nrow=2, label_x = c(.87), label_y = c(.95, .95),
+  align = "hv", nrow=2, label_x = c(.87), label_y = c(.98, .98),
   labels=c("(a)", "(b)")
 ))
 save_plot(paste0(path_out, "/04-Fig_histo_grid.svg"), hist_grid,
-          base_height = 5, base_asp = .9, ncol = 1, nrow = 1)
+          base_height = 6, base_asp = .6, ncol = 1, nrow = 1)
 
 # Save R objects
 saveRDS(distr_tib, paste0(path_obj, "/distr_tib.obj"))
