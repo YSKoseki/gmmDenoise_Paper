@@ -100,14 +100,20 @@ tree_glob <- list(phylo_pre3, xmax, datnam) %>%
 
 # Plot trees of a focal species 
 ## Test plot for finding the node of focal clade
+phylo_pre3 <- phylo_pre3 %>% lapply(
+  function(x) {
+    taxa_names(x) <- tax_table(x) %>% `[`(, "glob") %>% as.vector()
+    return(x)
+  }
+)
 plot.tree(phylo_pre3, "dada", subset.node = 432, text.size = 2, xmax = .06)
 
 ## Publication-quality tree plot 
 focalnode <- list(dada = 432, uno5 = 526, uno2 = 256, mifs = 1921)
 
-linesize <- list(dada = .5, uno5 = .5, uno2 = .5, mifs = .5)
+linesize <- list(dada = .7, uno5 = .7, uno2 = .7, mifs = .7)
 labsize <- list(dada = 6, uno5 = 6, uno2 = 6, mifs = 6)
-xmax2 <- list(dada = .07, uno5 = .095, uno2 = .079, mifs = .092)
+xmax2 <- list(dada = .065, uno5 = .087, uno2 = .073, mifs = .085)
 tree_focal <- list(phylo_pre3, focalnode, linesize, labsize, xmax2, datnam) %>%
   pmap(function(x, y, z, s, t, u) {
     tree <- x %>% phy_tree() %>% treeio::tree_subset(node = y, levels_back = 0)
@@ -129,33 +135,9 @@ save_plot(paste0(path_output, "/03-Focaltree_uno2.svg"),
           tree_focal[["uno2"]],
           base_height = 7, base_asp = 1 / 1)
 
- # Plot tree with multiple sequence alignment plot
-xmax3 <- list(dada = .097, uno5 = .128, uno2 = .11, mifs = .125)
-tree_focal_msa <- list(phylo_pre3, tree_focal, datnam, xmax3) %>%
-  pmap(function(x, y, z, s) {
-    focal <- y %>% `[[`("data") %>% filter(isTip == TRUE) %>% select(label) %>%
-      pull()
-    dnaseq <- x %>% refseq() %>% .[names(.) %in% focal] %>% 
-      DECIPHER::AlignSeqs(processors = NULL) %>%
-      DECIPHER::StaggerAlignment(processors = NULL) %>%
-      ggmsa::tidy_msa()
-    p <- y +
-      xlim_tree(s) +
-      geom_facet(panel = "MSA", data = dnaseq, geom = geom_msa,
-                 font = NULL, color = "Chemistry_NT", border = "white") +
-      scale_x_continuous(expand = c(.003, .003)) +
-      theme_tree2(legend.position = "none",
-                  strip.text = element_blank(),
-                  panel.spacing = unit(0.2, 'cm'))
-    p2 <- facet_widths(p, widths = c(.5, 1))
-    save_plot(paste0(path_output, "/04-FocaltreeMSA_", z, ".svg"), p2,
-              base_height = 7, base_asp = 1.618 / 1)
-    return(p)
-  })
-
 # Plot tree with heatmap
-xmax4 <- list(dada = .11, uno5 = .15, uno2 = .125, mifs = .145)
-tree_focal_heat <- list(phylo_pre3, tree_focal, datnam, xmax4) %>%
+xmax3 <- list(dada = .078, uno5 = .106, uno2 = .09, mifs = .102)
+tree_focal_heat <- list(phylo_pre3, tree_focal, datnam, xmax3) %>%
   pmap(function(x, y, z, s) {
     focal <- y %>% `[[`("data") %>% filter(isTip == TRUE) %>% select(label) %>%
       pull()
@@ -171,8 +153,8 @@ tree_focal_heat <- list(phylo_pre3, tree_focal, datnam, xmax4) %>%
       geom_tile(aes(fill = logabund), color = "white", size = 1) +
       scale_fill_gradient(low = "#fae7e7", high = "black", name = "Abund") +
       scale_y_discrete(expand = c(0, 0)) +
-      theme(axis.title.x = element_text(size = rel(1.8)),
-            axis.text.x = element_text(size = rel(1.5), angle = 90, hjust = 1),
+      theme(axis.title.x = element_text(size = rel(1.5)),
+            axis.text.x = element_text(size = rel(1.5), angle = 45, hjust = 1),
             axis.text.y = element_blank(),
             axis.line.x = element_line(size = .5),
             axis.line.y = element_line(size = .5),
@@ -183,8 +165,8 @@ tree_focal_heat <- list(phylo_pre3, tree_focal, datnam, xmax4) %>%
             legend.text = element_text(size = rel(1.3))) +
       xlab("Sample") +
       ylab(NULL)
-    comp.p <- p2 %>% aplot::insert_left(p, width = .5)
-    save_plot(paste0(path_output, "/05-FocaltreeHeat_", z, ".svg"), comp.p,
+    comp.p <- p2 %>% aplot::insert_left(p, width = .7)
+    save_plot(paste0(path_output, "/04-FocaltreeHeat_", z, ".svg"), comp.p,
               base_height = 7, base_asp = 1.618 / 1)
     return(comp.p)
   })
@@ -201,7 +183,7 @@ nhap <- map2(tree_focal, datnam,
                           pre = tot, post = ret, retain = ret / tot)
        })
 nhap %>% bind_rows() %>%
-  write.csv(paste0(path_output, "/06-dn_stat.csv"))
+  write.csv(paste0(path_output, "/05-dn_stat.csv"))
 
 # Save data
 ## Save R objects
