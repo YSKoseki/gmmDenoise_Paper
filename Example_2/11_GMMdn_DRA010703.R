@@ -1,5 +1,5 @@
 # 11_GMM_DRA010703.R
-# Last updated on 2022.10.18 by YK
+# Last updated on 2023.1.4 by YK
 # An R script to infer read count cut-off threshold for ASVs, based on Gaussian mixture modeling (GMM)
 # R 4.1.2
 
@@ -202,6 +202,7 @@ save_plot(paste0(path_output, "/08-Fig_publ.svg"), fig_publ,
 path_saved_object <- paste0(path_output, "/01-Saved_object")
 dir.create(path_saved_object, recursive=TRUE)
 saveRDS(thresh_tab, paste0(path_saved_object, "/thresh_tab", ".obj"))
+saveRDS(fig_histo, paste0(path_saved_object, "/fig_histo", ".obj"))
 # Save workspace and session info
 save.image(paste0(path_output, "/gmmdn.RData"))
 writeLines(capture.output(sessionInfo()), paste0(path_output, "/gmmdn.info"))

@@ -1,4 +1,4 @@
-# 13_DNfocal_DRA005106.R
+# 13_DNfocal_DRA010703.R
 # Last updated on 2022.12.18 by YK
 # An R script to generate graphical representations of the GMM-based denoising results in a focal species
 # R 4.1.2
