@@ -1,5 +1,5 @@
 # 09_GMMdn_DRA009149.R
-# Last updated on 2022.12.16 by YK
+# Last updated on 2023.1.11 by YK
 # An R script to infer true ASVs by the denoising method based on Gaussian mixture modeling (GMM)
 # R 4.1.2
 
@@ -40,38 +40,45 @@ nrepl <- phylo %>%
     y[y>0] <- 1
     z <- y %>% colSums()
     return(z)})
-truehap <- phylo %>%
+refhap <- phylo %>%
   lapply(function(x) {
     y <- x %>% tax_table() %>% as.data.frame()
-    y$istruehap <- factor(y$istruehap, levels=c("True", "False"))
+    y$isrefhap <- factor(y$isrefhap, levels=c("Ref", "Nonref"))
     z <- y  %>% rownames_to_column(var="asv") %>%
-      select(asv, truehap, istruehap) %>% 
+      select(asv, refhap, isrefhap) %>% 
       as_tibble()
     return(z)})
-reads_tib <- list(reads, nrepl, truehap) %>%
+reads_tib <- list(reads, nrepl, refhap) %>%
   pmap(function(x, y, z) {
     nam <- names(x)
     v <- tibble(asv=nam, reads=x, nrepl=y)
     w <- v %>% left_join(z, by="asv")
     return(w)})
-(truefalse_pre <- reads_tib %>%
+(refnonref_pre <- reads_tib %>%
   lapply(function(x) {
-    x %>% group_by(istruehap) %>% summarize(n=n())
+    x %>% group_by(isrefhap) %>% summarize(n=n())
   }))
-write.csv(truefalse_pre, paste0(path_output, "/02-truefalse_pre.csv"))
+(detect_in_all <- reads_tib %>%
+    lapply(function(x) {
+      x %>% group_by(isrefhap) %>%
+        filter(nrepl == 20) %>%
+        summarize(detect_in_all=n_distinct(asv))
+    }))
+write.csv(c(refnonref_pre, detect_in_all),
+          paste0(path_output, "/02-refnonref_pre.csv"))
 
 # Plot of reads vs. detection rates (as Figure 3 in Tsuji et al. 2020a)
 fig_scatter <- reads_tib %>%
   lapply(function(x) {
     y <- x %>%
       ggplot() +
-      geom_point(data=filter(x, istruehap=="False"),
+      geom_point(data=filter(x, isrefhap=="Nonref"),
                  aes(x=nrepl, y=log10(reads),
-                     color=istruehap, fill=istruehap, alpha=istruehap),
+                     color=isrefhap, fill=isrefhap, alpha=isrefhap),
                  shape=21, size=2, alpha=.2) +
-      geom_point(data=filter(x, istruehap=="True"),
+      geom_point(data=filter(x, isrefhap=="Ref"),
                  aes(x=nrepl, y=log10(reads),
-                     color=istruehap, fill=istruehap, alpha=istruehap),
+                     color=isrefhap, fill=isrefhap, alpha=isrefhap),
                  shape=21, size=2, alpha=.5) +
       scale_color_manual(values=c("firebrick", "black")) +
       scale_fill_manual(values=c("firebrick", "black")) +
@@ -205,48 +212,30 @@ save_plot(paste0(path_output, "/08-Fig_pdf_grid2.svg"), fig_pdf_grid2,
           base_asp=0.9, ncol=3, nrow=1)
 
 # A summary table of the denoising effect
-hapgroup_lev <- c("True pos", "True neg",
-                  "False pos", "False neg")
+hapgroup_lev <- c("Ref filtin", "Nonref filtout",
+                  "Nonref filtin", "Ref filtout")
 reads_tib <- thresh_tab[, "norm"] %>%
   as.list() %>%
   map2(reads_tib, ., function(x, y) {
     z <- x %>%
-      mutate(hapgroup = case_when(reads > y & istruehap == "True" ~
-                                    factor("True pos", levels = hapgroup_lev),
-                                  reads <= y & istruehap == "True" ~
-                                    factor("False neg", levels = hapgroup_lev),
-                                  reads > y & istruehap == "False" ~
-                                    factor("False pos", levels = hapgroup_lev),
-                                  reads <= y & istruehap == "False" ~
-                                    factor("True neg", levels = hapgroup_lev)))
+      mutate(hapgroup = case_when(reads > y & isrefhap == "Ref" ~
+                                    factor("Ref filtin", levels = hapgroup_lev),
+                                  reads <= y & isrefhap == "Ref" ~
+                                    factor("Ref filtout", levels = hapgroup_lev),
+                                  reads > y & isrefhap == "Nonref" ~
+                                    factor("Nonref filtin", levels = hapgroup_lev),
+                                  reads <= y & isrefhap == "Nonref" ~
+                                    factor("Nonref filtout", levels = hapgroup_lev)))
     return(z)
   })
-(truefalse_post <- reads_tib %>%
+(refnonref_post <- reads_tib %>%
   lapply(function(x) {
     x %>%
       group_by(hapgroup, .drop = FALSE) %>%
       summarize(n=n())
   }))
-truefalse_post %>% as_tibble()
-write.csv(truefalse_post, paste0(path_output, "/09-truefalse_post.csv"))
-
-y <- x %>%
-  ggplot() +
-  geom_point(data=filter(x, istruehap=="False"),
-             aes(x=nrepl, y=log10(reads),
-                 color=istruehap, fill=istruehap, alpha=istruehap),
-             shape=21, size=2, alpha=.2) +
-  geom_point(data=filter(x, istruehap=="True"),
-             aes(x=nrepl, y=log10(reads),
-                 color=istruehap, fill=istruehap, alpha=istruehap),
-             shape=21, size=2, alpha=.5) +
-  scale_color_manual(values=c("firebrick", "black")) +
-  scale_fill_manual(values=c("firebrick", "black")) +
-  scale_x_continuous(limits=c(0, 20), breaks=seq(0, 20, 5)) +
-  scale_y_continuous(limits=c(0, 8), breaks=seq(0, 8, 2)) +
-  xlab("Detection rate among 20 filter replicates") +
-  ylab("log10(Total reads)") +
-  guides(color="none", fill="none", alpha="none")
+refnonref_post %>% as_tibble()
+write.csv(refnonref_post, paste0(path_output, "/09-refnonref_post.csv"))
 
 # Visual representation of the denoising effect
 fig_scatter2 <- thresh_tab[, "log"] %>%
@@ -254,13 +243,13 @@ fig_scatter2 <- thresh_tab[, "log"] %>%
   map2(reads_tib, ., function(x, y) {
     z <- x %>%
       ggplot() +
-      geom_point(data=filter(x, istruehap=="False"),
+      geom_point(data=filter(x, isrefhap=="Nonref"),
                  aes(x=nrepl, y=log10(reads),
                      color=hapgroup, fill=hapgroup, alpha=hapgroup),
                  size=2) +
-      geom_point(data=filter(x, istruehap=="True"),
+      geom_point(data=filter(x, isrefhap=="Ref"),
                  aes(x=nrepl, y=log10(reads),
-                     color=hapgroup, fill=hapgroup, alpha=istruehap),
+                     color=hapgroup, fill=hapgroup, alpha=isrefhap),
                  size=2) +
       scale_color_manual(values=c("firebrick", "firebrick", "black")) +
       scale_fill_manual(values=c("firebrick", "firebrick", "black")) +

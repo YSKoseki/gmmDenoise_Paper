@@ -1,5 +1,5 @@
 # 05_Merger_DRA009149.R
-# Last updated on 2022.11.12 by YK
+# Last updated on 2023.1.11 by YK
 # An R script to merge data from the different pipelines, DADA2, Unoise3, and NODN (no denoising)
 # R 4.1.2
 
@@ -12,7 +12,7 @@ library(tidyverse); packageVersion("tidyverse") # 1.3.1
 path_merger_in <- list(dada="./03-DADA2_DRA009149/05-Saved_object/seqID_tib_dada.obj",
                       uno3="./04-UNOISE3_DRA009149/K_Saved_object/seqID_tib_uno3.obj",
                       nodn="./04-UNOISE3_DRA009149/K_Saved_object/seqID_tib_nodn.obj")
-path_trueseq_in <- "05-Tsuji_etal_2020b.fa"
+path_refseq_in <- "05-Tsuji_etal_2020b.fa"
 ## Output directory path
 path_merger_out <- "./05-Merger_DRA009149"
 
@@ -48,13 +48,13 @@ give.glob.id <- function(sequence.id.tibble, id.var.name="glob", id.prefix="ASV_
 }
 merged_seqID_tib <- give.glob.id(merged_seqID_tib)
 
-# Give true/false haplotype tags
-trueseq_tib <- seqinr::read.fasta(path_trueseq_in, seqtype="DNA", as.string=TRUE) %>%
-  unlist() %>% toupper() %>% tibble(truehap=names(.), seq=.)
+# Give ref/nonref haplotype tags
+trueseq_tib <- seqinr::read.fasta(path_refseq_in, seqtype="DNA", as.string=TRUE) %>%
+  unlist() %>% toupper() %>% tibble(refhap=names(.), seq=.)
 merged_seqID_tib <- merged_seqID_tib %>%
   left_join(trueseq_tib, by="seq") %>%
-  mutate(istruehap=if_else(is.na(truehap), "False", "True")) %>%
-  select(glob, dada, uno3, nodn, truehap, istruehap, seq)
+  mutate(isrefhap=if_else(is.na(refhap), "Nonref", "Ref")) %>%
+  select(glob, dada, uno3, nodn, refhap, isrefhap, seq)
 
 # Make FASTA file
 make.fasta2 <- function(seq.id.tibble,
