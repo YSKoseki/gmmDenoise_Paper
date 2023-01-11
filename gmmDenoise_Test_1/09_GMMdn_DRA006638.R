@@ -1,5 +1,5 @@
 # 09_GMMdn_DRA006638.R
-# Last updated on 2022.12.16 by YK
+# Last updated on 2023.1.11 by YK
 # An R script to infer true ASVs by the denoising method based on Gaussian mixture modeling (GMM)
 # R 4.1.2
 
@@ -45,7 +45,14 @@ reads_tib <- list(reads, nrepl, truehap) %>%
   lapply(function(x) {
     x %>% group_by(istruehap) %>% summarize(n=n())
   }))
-write.csv(truefalse_pre, paste0(path_output, "/02-truefalse_pre.csv"))
+(detect_in_all <- reads_tib %>%
+  lapply(function(x) {
+    x %>% group_by(istruehap) %>%
+      filter(nrepl == 15) %>%
+      summarize(detect_in_all=n_distinct(asv))
+  }))
+write.csv(c(truefalse_pre, detect_in_all),
+          paste0(path_output, "/02-truefalse_pre.csv"))
 
 # Plot of reads vs. detection rates (as Figure 3 in Tsuji et al. 2020)
 fig_scatter <- reads_tib %>%
@@ -74,6 +81,7 @@ theme_set(cowplot::theme_cowplot())
 save_plot(paste0(path_output, "/03-Fig_scatter_grid.svg"), fig_scatter_grid,
           base_asp=0.9, ncol=3, nrow=1)
 
+# Histogram plots
 fig_histo <- reads %>% 
   lapply(function(x) asvhist(x, scale="log", type="freq", nbins="Sturges",
                              xlim = c(0, 6)))
