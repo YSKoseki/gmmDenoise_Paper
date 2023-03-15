@@ -1,5 +1,5 @@
 # 12_DNsmry_DRA005106.R
-# Last updated on 2022.7.4 by YK
+# Last updated on 2023.3.15 by YK
 # An R script to evaluate denoising effects
 # R 4.1.2
 
@@ -60,12 +60,12 @@ smry.stats <- function(phydat.pre, phydat.post) {
   sp <- tibble(pre = sp_pre %>% nrow(),
                post = sp_post %>% nrow(),
                retain = post / pre)
-  # Number of idendified species by class
+  # Number of identified species by class
   sp_cl_pre <- sp_pre %>% group_by(class) %>% summarize(pre = n())
   sp_cl_post <- sp_post %>% group_by(class) %>% summarize(post = n())
   sp_by_cl <- full_join(sp_cl_pre, sp_cl_post, by = "class") %>%
     arrange(desc(post)) %>% mutate(retain = post / pre)
-  # fish species (no need to consider "Chondrichthyes" in freshwater samples)
+  # Fish species (no need to consider "Chondrichthyes" in freshwater samples)
   fs_pre <- sp_pre %>% filter(class == "Actinopteri") %>%
     select(species) %>% group_by(species) %>% summarize(pre = n())
   fs_post <- sp_post %>% filter(class == "Actinopteri") %>%
@@ -88,6 +88,50 @@ smry.stats <- function(phydat.pre, phydat.post) {
 ## Run
 smrystats <- list(phylo_pre, phylo_post) %>%
   pmap(smry.stats)
+
+# Read size by ASV before and after denoising
+## Function
+asv.lists <- function(phydat.pre, phydat.post) {
+  # Taxonomy and abundance data
+  melt_pre <- psmelt(phydat.pre) %>%
+    select(OTU, class, order, family, genus, species, glob, Abundance) %>%
+    group_by(OTU) %>%
+    summarize(class = first(class), order = first(order),
+              family = first(family), genus = first(genus),
+              species = first(species), asv = first(glob),
+              pre = sum(Abundance))
+  melt_post <- psmelt(phydat.post) %>%
+    select(OTU, class, order, family, genus, species, glob, Abundance) %>%
+    group_by(OTU) %>%
+    summarize(class = first(class), order = first(order),
+              family = first(family), genus = first(genus),
+              species = first(species), asv = first(glob),
+              post = sum(Abundance)) 
+  # Sequence data
+  seq_pre <- refseq(phydat.pre) %>% as.data.frame() %>%
+    rownames_to_column() %>% rename("OTU" = rowname, "sequence" = x)
+  seq_post <- refseq(phydat.post) %>% as.data.frame() %>%
+    rownames_to_column() %>% rename("OTU" = rowname, "sequence" = x)
+  # Combined data
+  join_pre <- full_join(melt_pre, seq_pre, by = "OTU") %>% select(-OTU)
+  join_post <- full_join(melt_post, seq_post, by = "OTU") %>% select(-OTU)
+  join_dat <- full_join(join_pre, join_post,
+                        by = c("class", "order", "family", "genus",
+                               "species", "asv", "sequence")) %>%
+    select(class, order, family, genus, species, asv, sequence, pre, post) %>%
+    arrange(class, order, family, genus, species, asv)
+  # Fish data
+  fs_dat <- join_dat %>% filter(class == "Actinopteri")
+  # Non-fish data
+  nonfs_dat <- join_dat %>% filter(class != "Actinopteri")
+  # List object
+  l <- list(fs_asv = fs_dat, nonfs_asv = nonfs_dat)
+  return(l)
+}
+## Run
+asvlist <- list(phylo_pre, phylo_post) %>%
+  pmap(asv.lists)
+
 ## Save stats
 dir.create(path_output, recursive=TRUE)
 ### Number of ASV
@@ -133,7 +177,7 @@ temp[["dada"]] %>%
   select(species, pre.dada, post.dada, everything()) %>%
   write.csv(paste0(path_output, "/06-diff_fs_sp.csv"))
 rm(temp)
-## Differences in identified fish species
+## Identification of non-fish species
 temp2 <- smrystats %>% 
   lapply(function(x) x[["nonfs_sp"]])
 temp2[["dada"]] %>% 
@@ -144,6 +188,44 @@ temp2[["dada"]] %>%
   select(species, pre.dada, post.dada, everything()) %>%
   write.csv(paste0(path_output, "/07-diff_nonfs_sp.csv"))
 rm(temp2)
+## List of all detected fish ASVs
+temp3 <- asvlist %>%
+  lapply(function(x) x[["fs_asv"]])
+temp3[["dada"]] %>% 
+  full_join(temp3[["uno5"]], suffix = c("", ".uno5"),
+            by = c("class", "order", "family", "genus",
+                   "species", "asv", "sequence")) %>%
+  full_join(temp3[["uno2"]], suffix = c("", ".uno2"),
+            by = c("class", "order", "family", "genus",
+                   "species", "asv", "sequence")) %>%
+  full_join(temp3[["mifs"]], suffix = c("", ".mifs"),
+            by = c("class", "order", "family", "genus",
+                   "species", "asv", "sequence")) %>%
+  mutate(pre.dada = pre, post.dada = post, .keep = "unused") %>%
+  select(class, order, family, genus, species, asv, sequence,
+         pre.dada, post.dada, everything()) %>%
+  arrange(class, order, family, genus, species, asv) %>% 
+  write.csv(paste0(path_output, "/08-diff_fs_asv.csv"))
+rm(temp3)
+## List of all detected non-fish ASVs
+temp4 <- asvlist %>%
+  lapply(function(x) x[["nonfs_asv"]])
+temp4[["dada"]] %>% 
+  full_join(temp4[["uno5"]], suffix = c("", ".uno5"),
+            by = c("class", "order", "family", "genus",
+                   "species", "asv", "sequence")) %>%
+  full_join(temp4[["uno2"]], suffix = c("", ".uno2"),
+            by = c("class", "order", "family", "genus",
+                   "species", "asv", "sequence")) %>%
+  full_join(temp4[["mifs"]], suffix = c("", ".mifs"),
+            by = c("class", "order", "family", "genus",
+                   "species", "asv", "sequence")) %>%
+  mutate(pre.dada = pre, post.dada = post, .keep = "unused") %>%
+  select(class, order, family, genus, species, asv, sequence,
+         pre.dada, post.dada, everything()) %>%
+  arrange(class, order, family, genus, species, asv) %>% 
+  write.csv(paste0(path_output, "/09-diff_nonfs_asv.csv"))
+rm(temp4)
 
 # Save data
 ## Save R objects
