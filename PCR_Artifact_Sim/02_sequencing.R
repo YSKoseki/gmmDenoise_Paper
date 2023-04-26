@@ -71,6 +71,7 @@ sequencing <- map2(
   mutate(repl = as.numeric(repl))
 
 # Summary of simulated sequencing
+## By sequence type (true and error sequences)
 summary_tib <- sequencing %>% nest_by(repl, seq_type) %>%
   mutate(
     seq_n = length(data$seq),
@@ -108,6 +109,51 @@ summary_seqread_tib <- sequencing %>% nest_by(seq_type) %>%
   ) %>%
   select(seq_type, mean_read_n, sd_read_n, min_read_n, max_read_n)
 write_csv(summary_seqread_tib, paste0(path_out, "/05-summary_seqread_tib.csv"))
+
+## By error type (single- and double-base-substituted sequences)
+summary_err_tib <- sequencing %>%
+  filter(seq_type == "False") %>%
+  mutate(nsub = seq %>% str_count("e") %>% `-`(1) %>% factor()) %>%
+  nest_by(repl, nsub, .drop = FALSE) %>%
+  mutate(
+    seq_n = length(data$seq),
+    sum_reads = sum(data$reads)
+  ) %>%
+  select(repl, nsub, seq_n, sum_reads)
+write_csv(summary_err_tib, paste0(path_out, "/06-summary_err_tib.csv"))
+
+summary_err_seq_tib <- summary_err_tib %>% nest_by(nsub) %>%
+  mutate(
+    mean_seq_n = mean(data$seq_n),
+    sd_seq_n = sd(data$seq_n),
+    min_seq_n = min(data$seq_n),
+    max_seq_n = max(data$seq_n)
+  ) %>%
+  select(nsub, mean_seq_n, sd_seq_n, min_seq_n, max_seq_n)
+write_csv(summary_err_seq_tib, paste0(path_out, "/07-summary_err_seq_tib.csv"))
+
+summary_err_sumread_tib <- summary_err_tib %>% nest_by(nsub) %>%
+  mutate(
+    mean_sum_reads = mean(data$sum_reads),
+    sd_sum_reads = sd(data$sum_reads),
+    min_sum_reads = min(data$sum_reads),
+    max_sum_reads = max(data$sum_reads)
+  ) %>%
+  select(nsub, mean_sum_reads, sd_sum_reads, min_sum_reads, max_sum_reads)
+write_csv(summary_err_sumread_tib, paste0(path_out, "/08-summary_err_sumread_tib.csv"))
+
+summary_err_seqread_tib <- sequencing %>%
+  filter(seq_type == "False") %>%
+  mutate(nsub = seq %>% str_count("e") %>% `-`(1) %>% factor()) %>%
+  nest_by(nsub, .drop = FALSE) %>%
+  mutate(
+    mean_read_n = mean(data$reads),
+    sd_read_n = sd(data$reads),
+    min_read_n = min(data$reads),
+    max_read_n = max(data$reads)
+  ) %>%
+  select(nsub, mean_read_n, sd_read_n, min_read_n, max_read_n)
+write_csv(summary_err_seqread_tib, paste0(path_out, "/09-summary_err_seqread_tib.csv"))
 
 # Save R ojbects
 saveRDS(sequencing, paste0(path_obj, "/sequencing.obj"))
