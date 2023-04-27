@@ -1,2 +1,2 @@
 # gmmDenoise_Paper
-R code for Koseki et al. (In preparation)
+Scripts used in Koseki et al. (In preparation)
