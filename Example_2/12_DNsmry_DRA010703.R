@@ -1,5 +1,5 @@
 # 12_DNsmry_DRA010703.R
-# Last updated on 2023.3.15 by YK
+# Last updated on 2023.5.1 by YK
 # An R script to evaluate denoising effects
 # R 4.1.2
 
@@ -142,6 +142,7 @@ smrystats %>%
   bind_rows() %>%
   mutate(data = names(smrystats)) %>% 
   select(data, everything()) %>%
+  `[`(c(4, 1:3), ) %>%
   write.csv(paste0(path_output, "/02-diff_asv.csv"))
 ### Number of ASVs by class
 smrystats %>%
@@ -151,6 +152,7 @@ smrystats %>%
          mutate(x, data = y) %>% select(data, everything())
        }) %>%
   bind_rows() %>%
+  `[`(c(16:19, 1:15), ) %>%
   write.csv(paste0(path_output, "/03-diff_asv_by_cl.csv"))
 ### Number of identified species
 smrystats %>% 
@@ -158,6 +160,7 @@ smrystats %>%
   bind_rows() %>%
   mutate(data = names(smrystats)) %>% 
   select(data, everything()) %>%
+  `[`(c(4, 1:3), ) %>%
   write.csv(paste0(path_output, "/04-diff_sp.csv"))
 ### Number of identified species by class
 smrystats %>% 
@@ -167,6 +170,7 @@ smrystats %>%
          mutate(x, data = y) %>% select(data, everything())
        }) %>%
   bind_rows() %>%
+  `[`(c(13:16, 1:12), ) %>%
   write.csv(paste0(path_output, "/05-diff_sp_by_cl.csv"))
 ## Identification of fish species
 temp <- smrystats %>% 
@@ -177,6 +181,7 @@ temp[["dada"]] %>%
   full_join(temp[["mifs"]], suffix = c("", ".mifs"), by = "species") %>%
   mutate(pre.dada = pre, post.dada = post, .keep = "unused") %>%
   select(species, pre.dada, post.dada, everything()) %>%
+  `[`(, c(1, 8:9, 2:7)) %>%
   write.csv(paste0(path_output, "/06-diff_fs_sp.csv"))
 rm(temp)
 ## Identification of non-fish species
@@ -188,6 +193,7 @@ temp2[["dada"]] %>%
   full_join(temp2[["mifs"]], suffix = c("", ".mifs"), by = "species") %>%
   mutate(pre.dada = pre, post.dada = post, .keep = "unused") %>%
   select(species, pre.dada, post.dada, everything()) %>%
+  `[`(, c(1, 8:9, 2:7)) %>%
   write.csv(paste0(path_output, "/07-diff_nonfs_sp.csv"))
 rm(temp2)
 ## List of all detected fish ASVs
@@ -206,7 +212,8 @@ temp3[["dada"]] %>%
   mutate(pre.dada = pre, post.dada = post, .keep = "unused") %>%
   select(class, order, family, genus, species, asv, sequence,
          pre.dada, post.dada, everything()) %>%
-  arrange(class, order, family, genus, species, asv) %>% 
+  arrange(class, order, family, genus, species, asv) %>%
+  `[`(, c(1:7, 14:15, 8:13)) %>%
   write.csv(paste0(path_output, "/08-diff_fs_asv.csv"))
 rm(temp3)
 ## List of all detected non-fish ASVs
@@ -225,7 +232,8 @@ temp4[["dada"]] %>%
   mutate(pre.dada = pre, post.dada = post, .keep = "unused") %>%
   select(class, order, family, genus, species, asv, sequence,
          pre.dada, post.dada, everything()) %>%
-  arrange(class, order, family, genus, species, asv) %>% 
+  arrange(class, order, family, genus, species, asv) %>%
+  `[`(, c(1:7, 14:15, 8:13)) %>%
   write.csv(paste0(path_output, "/09-diff_nonfs_asv.csv"))
 rm(temp4)
 

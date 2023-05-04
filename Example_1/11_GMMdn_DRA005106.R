@@ -1,5 +1,5 @@
 # 11_GMMdn_DRA005106.R
-# Last updated on 2023.1.4 by YK
+# Last updated on 2023.5.1 by YK
 # An R script to infer read count cut-off threshold for ASVs, based on Gaussian mixture modeling (GMM)
 # R 4.1.2
 
@@ -26,9 +26,9 @@ reads <- phylo %>%
 fig_histo <- reads %>% 
   lapply(function(x) asvhist(x, scale="log", ylim=c(0, 200)))
 theme_set(cowplot::theme_cowplot())
-(fig_histo_grid <- fig_histo %>% 
+(fig_histo_grid <- fig_histo[c(4, 1:3)] %>% 
   cowplot::plot_grid(plotlist=., 
-                     labels=toupper(names(fig_histo)), 
+                     labels=toupper(names(fig_histo)[c(4, 1:3)]), 
                      label_x=1, label_y=1, hjust=2, vjust=2))
 dir.create(path_output, recursive=TRUE)
 save_plot(paste0(path_output, "/02-Fig_histo_grid.svg"), fig_histo_grid, ncol=2, nrow=2)
@@ -42,57 +42,11 @@ crossval <- reads %>%
 ### Plot the CV results
 fig_cv <- crossval %>% lapply(autoplot)
 theme_set(cowplot::theme_cowplot())
-(fig_cv_grid <- fig_cv %>% 
+(fig_cv_grid <- fig_cv[c(4, 1:3)] %>% 
     cowplot::plot_grid(plotlist=., 
-                       labels=toupper(names(fig_cv)), 
+                       labels=toupper(names(fig_cv)[c(4, 1:3)]), 
                        label_x=1, label_y=1, hjust=2, vjust=2))
 save_plot(paste0(path_output, "/03-Fig_cv_grid.svg"), fig_cv_grid, ncol=2, nrow=2)
-
-# Unused
-# ## Approach 2: Sequential parametric bootstrap tests
-# ### The bootstrapping
-# set.seed(102)
-# paraboot <- reads %>% 
-#   lapply(function(x) {
-#     gmmbs(log10(x), B=5000, epsilon=1e-2)
-#   })
-# ### Plot the bootstrap test results
-# fig_paraboot <- paraboot %>% lapply(autoplot)
-# ### Flatten the hierarchical structure of 'fig_paraboot'
-# flatten.fig.paraboot <- function(fig.paraboot) {
-#   max.cols <- fig.paraboot %>% sapply(length) %>% max()
-#   flat.h <- map2(fig.paraboot, max.cols,
-#                    function(x, y) {
-#                      n.figs <- length(x)
-#                      n.cols <- y
-#                      n.diff <- n.cols-n.figs
-#                      if (n.diff>0) 
-#                        z <- rep(list(NULL), n.diff) %>% c(x, .)
-#                      else 
-#                        z <- x
-#                    }) %>% 
-#     unlist(recursive=FALSE, use.names=FALSE)
-#   # Give name labels of 'fig.paraboot' to the element of left-most plotted histograms
-#   elms <- seq(1, length(flat.h), by=max.cols)
-#   nams <- names(fig.paraboot)
-#   names(flat.h)[elms] <- nams
-#   return(flat.h)
-# }
-# fig_paraboot2 <- flatten.fig.paraboot(fig_paraboot)
-# ### Display the plots in grid
-# theme_set(cowplot::theme_cowplot())
-# (fig_paraboot_grid <- fig_paraboot2 %>% 
-#     cowplot::plot_grid(plotlist=.,
-#                        ncol=length(fig_paraboot2)/length(fig_paraboot),
-#                        nrow=length(fig_paraboot),
-#                        labels=toupper(names(fig_paraboot2)), label_size=16,
-#                        label_x=0, label_y=1, hjust=-.3, vjust=1.6))
-# save_plot(paste0(path_output, "/04-Fig_paraboot_grid.svg"), 
-#           fig_paraboot_grid, 
-#           ncol=length(fig_paraboot2)/length(fig_paraboot),
-#           nrow=length(fig_paraboot))
-# ### Summary statistics of the bootstrap tests
-# (summary_parboot <- paraboot %>% lapply(summary))
 
 # Step 2: Model fitting with the selected number of components
 ## The selected number of components
@@ -109,11 +63,11 @@ fig_pdf <- gmm_fit %>%
        autoplot(x, xlim=c(1, 6), ylim=c(0, 200))
      })
 theme_set(cowplot::theme_cowplot())
-fig_pdf_grid <- fig_pdf %>% 
+fig_pdf_grid <- fig_pdf[c(4, 1:3)] %>% 
   cowplot::plot_grid(plotlist=., 
-                     labels=toupper(names(fig_pdf)), 
+                     labels=toupper(names(fig_pdf)[c(4, 1:3)]), 
                      label_x=.75, label_y=1, hjust=0, vjust=2)
-save_plot(paste0(path_output, "/05-Fig_pdf_grid.svg"), fig_pdf_grid, ncol=2, nrow=2)
+save_plot(paste0(path_output, "/04-Fig_pdf_grid.svg"), fig_pdf_grid, ncol=2, nrow=2)
 
 # Step 4: Infer read count threshold for ASV cut-off
 ## Calculate 95-percentiles of individual mixture components of fitted GMMs
@@ -132,7 +86,8 @@ lower95_log <- gmm_fit %>%
     data.frame(log=.) %>% 
     rownames_to_column(var="data") %>% 
     mutate(norm=ceiling(10^log)))
-write.csv(thresh_tab, paste0(path_output, "/06-thresh_tab.csv"))
+write.csv(thresh_tab[c(4, 1:3), ], paste0(path_output, "/05-thresh_tab.csv"))
+
 ## Draw vertical lines indicating 95-percentiles to the plots
 fig_pdf2 <- list(dada=c(1, NA), uno5=c(NA, 1, NA), uno2=NA, mifs=c(NA, 1, NA)) %>% 
   map2(lower95_log, function(x, y) x*y) %>% 
@@ -141,60 +96,60 @@ fig_pdf2 <- list(dada=c(1, NA), uno5=c(NA, 1, NA), uno2=NA, mifs=c(NA, 1, NA)) %
          autoplot(x, vline=y, xlim=c(1, 6), ylim=c(0, 200))
        })
 theme_set(cowplot::theme_cowplot())
-fig_pdf_grid2 <- fig_pdf2 %>% 
+fig_pdf_grid2 <- fig_pdf2[c(4, 1:3)] %>% 
     cowplot::plot_grid(plotlist=., 
-                       labels=toupper(names(fig_pdf)), 
+                       labels=toupper(names(fig_pdf)[c(4, 1:3)]), 
                        label_x=.75, label_y=1, hjust=0, vjust=2)
-save_plot(paste0(path_output, "/07-Fig_pdf_grid2.svg"), fig_pdf_grid2, ncol=2, nrow=2)
+save_plot(paste0(path_output, "/06-Fig_pdf_grid2.svg"), fig_pdf_grid2, ncol=2, nrow=2)
 
 # Compound plot for publication
 theme_set(cowplot::theme_cowplot())
 (fig_publ <- cowplot::plot_grid(
-  fig_histo[["dada"]] +
-    scale_x_continuous(limits=c(1, 6), breaks=seq(1, 6)) +
-    scale_y_continuous(limits=c(0, 170), expand=c(0, 0)) +
-    xlab(""),
-  fig_histo[["uno5"]] +
-    scale_x_continuous(limits=c(1, 6), breaks=seq(1, 6)) +
-    scale_y_continuous(limits=c(0, 170), expand=c(0, 0)) +
-    theme(axis.title.y=element_blank()),
   fig_histo[["mifs"]] +
     scale_x_continuous(limits=c(1, 6), breaks=seq(1, 6)) +
     scale_y_continuous(limits=c(0, 170), expand=c(0, 0)) +
-    xlab("") +
-    theme(axis.title.y=element_blank()),
-  fig_cv[["dada"]] +
-    scale_y_continuous(limits=c(-200, -150)) +
     xlab(""),
-  fig_cv[["uno5"]] +
-    scale_y_continuous(limits=c(-240, -180)) +
+  fig_histo[["dada"]] +
+    scale_x_continuous(limits=c(1, 6), breaks=seq(1, 6)) +
+    scale_y_continuous(limits=c(0, 170), expand=c(0, 0)) +
+    theme(axis.title.y=element_blank()),
+  fig_histo[["uno5"]] +
+    scale_x_continuous(limits=c(1, 6), breaks=seq(1, 6)) +
+    scale_y_continuous(limits=c(0, 170), expand=c(0, 0)) +
+    xlab("") +
     theme(axis.title.y=element_blank()),
   fig_cv[["mifs"]] +
     scale_y_continuous(limits=c(-700, -400)) +
+    xlab(""),
+  fig_cv[["dada"]] +
+    scale_y_continuous(limits=c(-200, -150)) +
+    theme(axis.title.y=element_blank()),
+  fig_cv[["uno5"]] +
+    scale_y_continuous(limits=c(-240, -180)) +
     xlab("") +
     theme(axis.title.y=element_blank()),
+  fig_pdf2[["mifs"]] +
+    scale_x_continuous(limits=c(1, 6), breaks=seq(1, 6)) +
+    scale_y_continuous(limits=c(0, 170), expand=c(0, 0)) +
+    theme(legend.position=c(.96, .85)) +
+    xlab(""),
   fig_pdf2[["dada"]] +
     scale_x_continuous(limits=c(1, 6), breaks=seq(1, 6)) +
     scale_y_continuous(limits=c(0, 170), expand=c(0, 0)) +
-    theme(legend.position=c(.97, .85)) +
-    xlab(""),
-  fig_pdf2[["uno5"]] +
+    theme(axis.title.y=element_blank(),
+          legend.position=c(.96, .85)),
+  fig_pdf2[["uno5"]] + xlab("") +
     scale_x_continuous(limits=c(1, 6), breaks=seq(1, 6)) +
     scale_y_continuous(limits=c(0, 170), expand=c(0, 0)) +
     theme(axis.title.y=element_blank(),
-          legend.position=c(.97, .85)),
-  fig_pdf2[["mifs"]] + xlab("") +
-    scale_x_continuous(limits=c(1, 6), breaks=seq(1, 6)) +
-    scale_y_continuous(limits=c(0, 170), expand=c(0, 0)) +
-    theme(axis.title.y=element_blank(),
-          legend.position=c(.94, .85)),
+          legend.position=c(.96, .85)),
   align="hv", nrow=3,
-  label_x=c(.56, .49, .53, .56, .49, .53, .56, .49, .53), label_y=.97,
-  labels=c("(a) DADA2", "(b) UNOISE3", "(c) NON-DN",
-           "(d) DADA2", "(e) UNOISE3", "(f) NON-DN",
-           "(g) DADA2", "(h) UNOISE3", "(i) NON-DN")
+  label_x=c(.51, .55, .5, .51, .55, .5, .51, .55, .5), label_y=.97,
+  labels=c("(a) NON-DN", "(b) DADA2", "(c) UNOISE3",
+           "(d) NON-DN", "(e) DADA2", "(f) UNOISE3",
+           "(g) NON-DN", "(h) DADA2", "(i) UNOISE3")
 ))
-save_plot(paste0(path_output, "/08-Fig_publ.svg"), fig_publ,
+save_plot(paste0(path_output, "/07-Fig_publ.svg"), fig_publ,
           base_asp=1, ncol=3, nrow=3)
 
 # Save data
