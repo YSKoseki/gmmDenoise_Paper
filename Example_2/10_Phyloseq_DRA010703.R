@@ -1,5 +1,5 @@
 # 10_Phyloseq_DRA010703.R
-# Last updated on 2022.7.3 by YK
+# Last updated on 2023.5.25 by YK
 # An R script to construct phyloseq objects with data from different pipelines
 # R 4.1.2
 
@@ -70,13 +70,12 @@ phydat <- alg %>%
   lapply(phangorn::phyDat)
 phydat_dist <- phydat %>% 
   lapply(phangorn::dist.ml)
-## Build neighbor-Joining tree
+## Build neighbor-joining tree
 treeNJ <- phydat_dist %>% 
   lapply(phangorn::NJ)
 ##Build Jukes-Cantor model ML tree
 treeJC <- map2(treeNJ, phydat, function(x, y) phangorn::pml(x, data=y)) %>%
   lapply(function(x) optim.pml(x, optNni=TRUE))
-
 ## Build GTR+I+G model ML tree (General Time-Reversible model, with corrections for Invariant characters and Gamma-distributed rate heterogeneity)
 treeGTR <- map2(treeNJ, phydat, function(x, y) phangorn::pml(x, data=y)) %>%
   lapply(function(x) update(x, k=4, inv=0.2)) %>%
@@ -85,7 +84,6 @@ treeGTR <- map2(treeNJ, phydat, function(x, y) phangorn::pml(x, data=y)) %>%
                                          rearrangement="stochastic",
                                          control=phangorn::pml.control(trace=0)
                                          ))
-
 ## Model selection with AIC
 mod.sel <- rbind(treeJC=lapply(treeJC, AIC) %>% unlist(),
                  treeGTR=lapply(treeGTR, AIC) %>% unlist()); mod.sel
@@ -100,7 +98,6 @@ bs <- treeGTR %>%
                             multicore=TRUE,
                             mc.cores=10) # Only effective in the command line ("X11")
   })
-
 ## Attach bootstrap values to the model-selected GTR+I+G model ML tree
 treeGTRbs <- map2(treeGTR, bs, 
                   function(x, y) {
@@ -112,7 +109,7 @@ treeGTRbs <- map2(treeGTR, bs,
                   }
                   )
 
-## Bind the tree to the phyloseq object
+# Bind the tree to the phyloseq object
 phylo <- map2(phylo, treeGTRbs,
               function(x, y) merge_phyloseq(x, y$tree))
 
