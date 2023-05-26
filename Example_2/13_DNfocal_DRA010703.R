@@ -1,16 +1,15 @@
 # 13_DNfocal_DRA010703.R
-# Last updated on 2022.12.18 by YK
+# Last updated on 2023.5.26 by YK
 # An R script to generate graphical representations of the GMM-based denoising results in a focal species
 # R 4.1.2
 
 # Packages required
 library(speedyseq); packageVersion("speedyseq") # 0.5.3.9018
-library(cowplot); packageVersion("cowplot") # 1.1.1
-library(svglite); packageVersion("svglite") # 2.1.0
 library(ape); packageVersion("ape") # 5.6.2
 library(treeio); packageVersion("treeio") # 1.18.1
 library(ggtree); packageVersion("ggtree") # 3.2.1
-library(ggmsa); packageVersion("ggmsa") # 1.3.3
+library(cowplot); packageVersion("cowplot") # 1.1.1
+library(svglite); packageVersion("svglite") # 2.1.0
 library(aplot); packageVersion("aplot") # 0.1.6
 library(tidyverse); packageVersion("tidyverse") # 1.3.1
 
@@ -44,8 +43,7 @@ plot.tree <- function(phyloseq.list, list.id,
     theme_tree2() +
     xlim(0, xmax)
 }
-plot.tree(phylo_pre, "mifs", root.node = NULL, subset.node = NULL,
-          xmax = 2, text.size = .2)
+plot.tree(phylo_pre, "dada", root.node = 1484, xmax = 2, text.size = .2)
 
 # Replace trees with mammal-rooted trees
 rootnode <- list(dada = 1484, uno5 = 1709, uno2 = 506, mifs = 7689)
@@ -93,7 +91,6 @@ tree_glob <- list(phylo_pre3, xmax, datnam) %>%
       geom_text(aes(label = node), size = .3, hjust = -.2) +
       geom_tiplab(aes(color = denoised), size = .3, hjust = -.1) +
       scale_color_manual(values = c("black", "firebrick")) +
-      scale_alpha_manual(values = c(1, 0)) +
       theme_tree(legend.position = "none") +
       xlim_tree(y)
     save_plot(paste0(path_output, "/02-Globaltree_", z, ".svg"), p,
@@ -111,7 +108,6 @@ tree_glob_alp <- list(phylo_pre3, xmax, datnam) %>%
       scale_alpha_manual(values = c(1, 0)) +
       theme_tree(legend.position = "none") +
       xlim_tree(y)
-    #save_plot(paste0(path_output, "/02-Globaltree_", z, ".svg"), p,
     save_plot(paste0(path_output, "/02-Globaltree_", z, "_alp.svg"), p,
               base_height = 7, base_asp = 1 / 1)
     return(p)
@@ -119,21 +115,19 @@ tree_glob_alp <- list(phylo_pre3, xmax, datnam) %>%
 
 # Plot trees of a focal species 
 ## Test plot for finding the node of focal clade
-phylo_pre3 <- phylo_pre3 %>% lapply(
+phylo_pre4 <- phylo_pre3 %>% lapply(
   function(x) {
     taxa_names(x) <- tax_table(x) %>% `[`(, "glob") %>% as.vector()
     return(x)
   }
 )
-plot.tree(phylo_pre3, "mifs", subset.node = 7401, text.size = 2, xmax = .05)
-
+plot.tree(phylo_pre4, "mifs", subset.node = 7401, text.size = 2, xmax = .05)
 ## Publication-quality tree plot 
 focalnode <- list(dada = 1358, uno5 = 1562, uno2 = 784, mifs = 7401)
-
 linesize <- list(dada = .5, uno5 = .5, uno2 = .5, mifs = .2)
 labsize <- list(dada = 4, uno5 = 4, uno2 = 5, mifs = 1.5)
 xmax2 <- list(dada = .07, uno5 = .0407, uno2 = .0608, mifs = .037)
-tree_focal <- list(phylo_pre3, focalnode, linesize, labsize, xmax2, datnam) %>%
+tree_focal <- list(phylo_pre4, focalnode, linesize, labsize, xmax2, datnam) %>%
   pmap(function(x, y, z, s, t, u) {
     tree <- x %>% phy_tree() %>% treeio::tree_subset(node = y, levels_back = 0)
     taxdf <- x %>% tax_table() %>% as_tibble()
@@ -148,7 +142,6 @@ tree_focal <- list(phylo_pre3, focalnode, linesize, labsize, xmax2, datnam) %>%
               base_height = 7, base_asp = 1 / 1)
     return(p2)
   })
-
 ## Flip the uno2 tree nodes for consistency
 tree_focal[["uno2"]] + geom_text(aes(label = node))
 tree_focal[["uno2"]] <- tree_focal[["uno2"]] %>% flip(2, 9)
@@ -160,7 +153,7 @@ save_plot(paste0(path_output, "/03-Focaltree_uno2.svg"),
 
 # Plot tree with heatmap
 xmax3 <- list(dada = .078, uno5 = .045, uno2 = .072, mifs = .0385)
-tree_focal_heat <- list(phylo_pre3, tree_focal, datnam, xmax3) %>%
+tree_focal_heat <- list(phylo_pre4, tree_focal, datnam, xmax3) %>%
   pmap(function(x, y, z, s) {
     focal <- y %>% `[[`("data") %>% filter(isTip == TRUE) %>% select(label) %>%
       pull()
@@ -214,6 +207,7 @@ path_saved_object <- paste0(path_output, "/01-Saved_object")
 dir.create(path_saved_object, recursive = TRUE)
 saveRDS(focalnode, paste0(path_saved_object, "/focalnode", ".obj"))
 saveRDS(phylo_pre3, paste0(path_saved_object, "/phylo_pre3", ".obj"))
+saveRDS(phylo_pre4, paste0(path_saved_object, "/phylo_pre4", ".obj"))
 saveRDS(tree_glob, paste0(path_saved_object, "/tree_glob", ".obj"))
 # Save workspace and session info
 save.image(paste0(path_output, "/dnfocal.RData"))

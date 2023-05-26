@@ -1,5 +1,5 @@
 # 14_Hapnetmap_DRA005106.R
-# Last updated on 2022.12.1 by YK
+# Last updated on 2023.5.26 by YK
 # An R script to create haplotype networks and haplotype frequency maps
 # R 4.1.2
 # 
@@ -19,7 +19,7 @@ library(tidyverse); packageVersion("tidyverse") # ‘1.3.1’
 # Paths
 ## List of phyloseq objects
 path_node <- "./13-DNfocal_DRA005106/01-Saved_object/focalnode.obj"
-path_phylo <- "./13-DNfocal_DRA005106/01-Saved_object/phylo_pre3.obj"
+path_phylo <- "./13-DNfocal_DRA005106/01-Saved_object/phylo_pre4.obj"
 path_shape <- "./14-shapefiles"
 
 ## Output directory
@@ -28,7 +28,7 @@ dir.create(path_output, recursive=TRUE)
 
 # Load the phyloseq objects
 focalnode <- readRDS(path_node)
-phylo_pre3 <- readRDS(path_phylo)
+phylo_pre4 <- readRDS(path_phylo)
 
 # Haplotype networks
 ## Create objects for plotting
@@ -68,7 +68,7 @@ get.hapnet <- function(x, y) {
   return(z)
 }
 
-hapnet <- get.hapnet(phylo_pre3[["dada"]], focalnode[["dada"]])
+hapnet <- get.hapnet(phylo_pre4[["dada"]], focalnode[["dada"]])
 
 ## Test plot
 replot.hapnet <- function(hapnet, size = "reads", labels = TRUE,
@@ -184,8 +184,6 @@ map_inset <- ggplot() +
 
 # Haplotype frequency data
 ## Create data table (tibble)
-focalnode <- readRDS(path_node)
-phylo_pre3 <- readRDS(path_phylo)
 get.hapfreq <- function(x, y) {
   label <- x %>% phy_tree() %>%
     treeio::tree_subset(node = y, levels_back = 0) %>%
@@ -207,7 +205,7 @@ get.hapfreq <- function(x, y) {
   df <- right_join(sampdat, otutab, by = "sample")
   return(df)
 }
-hap_tib <- get.hapfreq(phylo_pre3[["dada"]], focalnode[["dada"]]) %>%
+hap_tib <- get.hapfreq(phylo_pre4[["dada"]], focalnode[["dada"]]) %>%
   group_by(lat, lon) %>%
   summarize(across(c(sample, river), first),
             across(c(starts_with("ASV_"), tot), sum))
