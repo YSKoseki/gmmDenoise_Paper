@@ -1,5 +1,5 @@
 # 14_Hapnetmap_DRA010703.R
-# Last updated on 2023.5.26 by YK
+# Last updated on 2023.6.14 by YK
 # An R script to create haplotype networks and haplotype frequency maps
 # R 4.1.2
 # 
@@ -22,7 +22,7 @@ path_node <- "./13-DNfocal_DRA010703/01-Saved_object/focalnode.obj"
 path_phylo <- "./13-DNfocal_DRA010703/01-Saved_object/phylo_pre4.obj"
 path_shape <- "./14-shapefiles"
 ## Output directory
-path_output <- "./14-Hapnetmap_DRA010703.R"
+path_output <- "./14-Hapnetmap_DRA010703"
 dir.create(path_output, recursive=TRUE)
 
 # Load the phyloseq objects
@@ -78,29 +78,26 @@ replot.hapnet <- function(hapnet, size = "reads", labels = TRUE,
   if (size == "nsamp") {N <- hapnet[["nsamp"]]}
   xy <- hapnet[["xy"]]
   nhap <- length(N)
-  if (is.na(bg)) {
+  if (any(is.na(bg))) {
     if (nhap <= 5) {
-      par_bg <- wes_palette("Darjeeling1", n = nhap) %>%
-        alpha(alpha)
+      par_bg <- wes_palette("Darjeeling1", n = nhap) %>% alpha(alpha)
     }
     else {
       if (nhap <= 10) {
         par_bg <- c(wes_palette("Darjeeling1"),
-                    wes_palette("Darjeeling2", n = nhap - 5)) %>%
-          alpha(alpha)
+                    wes_palette("Darjeeling2", n = nhap - 5)) %>% alpha(alpha)
       }
       else {
         par_bg <- c(wes_palette("Darjeeling1"),
                     wes_palette("Darjeeling2"),
-                    wes_palette("Cavalcanti1", n = nhap - 10)) %>%
-          alpha(alpha)
+                    wes_palette("Cavalcanti1", n = nhap - 10)) %>% alpha(alpha)
       }
     }
   }
   else {
-    par_bg <- bg
+    par_bg <- bg %>% alpha(alpha)
   }
-  if (is.na(col)) {
+  if (any(is.na(col))) {
     par_col <- "black"
   }
   else {
@@ -114,16 +111,30 @@ replot.hapnet <- function(hapnet, size = "reads", labels = TRUE,
 }
 tmp <- replot.hapnet(hapnet,
                      size = "sqrtreads",
-                     scale.ratio = 50, cex = 1.5, alpha = .7, lwd = 3)
-##Notrun hapnet[["dada"]][["xy"]] <- tmp
+                     scale.ratio = 50, cex = 1.5, alpha = .7, lwd = 3,
+                     bg = wes_palette(
+                       "Zissou1", 10, "continuous")[c(10, 1, 5, 7, 9, 6, 8)])
+## Notrun
+## hapnet$xy <- tmp
 rm(tmp)
+## Annotation
+locator(2)
+text(-83.05234, -283.95367, "NWP2", cex = 1.8, font = 2)
+text(-338.57486, -78.66208, "NWP1", cex = 1.8, font = 2)
+
+
 ## Final plot
 svglite(paste0(path_output, "/02-Hapnet.svg"),
-        width = 5, height = 5)
+        width = 7, height = 5)
 replot.hapnet(hapnet,
               size = "sqrtreads",
-              scale.ratio = 100, cex = 1.2, alpha = .7, lwd = 2)
+              scale.ratio = 100, cex = 1.2, alpha = .7, lwd = 2,
+              bg = wes_palette(
+                "Zissou1", 10, "continuous")[c(10, 1, 5, 7, 9, 6, 8)])
+text(-83, -284, "NWP1", cex = 1.5, font = 2)
+text(-338, -78, "NWP2", cex = 1.5, font = 2)
 dev.off()
+
 
 # Geographical maps
 ## Lake Biwa obj
@@ -139,9 +150,9 @@ land.001 <- land %>% ms_simplify(keep = .001)
 land.001japan <- land.001 %>% aggregate(list(rep(1, 47)), head, n = 1)
 land.001japan[1, "name"] <- "日本"
 ## Mapping
-range_lon <- c(126, 149)
+range_lon <- c(126, 150)
 range_lat <- c(26, 46)
-annot_po <- c(134.5, 28)
+annot_po <- c(146.5, 39)
 annot_po2 <- c(129.5, 41)
 map_main <- ggplot() +
   geom_sf(data = land.001japan, size = .3, color = "black") +
@@ -159,6 +170,7 @@ map_main <- ggplot() +
                          height = unit(2, "cm"), width = unit(2, "cm"),
                          pad_x = unit(.4, "cm"), pad_y = unit(.4, "cm"),
                          style = north_arrow_fancy_orienteering) +
+  theme(plot.margin = unit(c(.35, -.2, .35, -.3), "cm")) +
   panel_border(color = "black")
 
 # Haplotype frequency data
@@ -206,10 +218,8 @@ hap_tib2 <- hap_tib %>%
                                 show.legend = FALSE
                               ) +
                               scale_fill_manual(
-                                values = c(
-                                  wes_palette("Darjeeling1", 5),
-                                  wes_palette("Darjeeling2", length(hapid) - 5)
-                                )
+                                values = wes_palette(
+                                  "Zissou1", 10, "continuous")[c(10, 1, 5, 7, 9, 6, 8)]
                               ) +
                               coord_polar(theta = "y") +
                               theme_void()
@@ -226,12 +236,13 @@ hap_tib2 <- hap_tib %>%
                       ymin = lat - radius, ymax = lat + radius)
   ))
 
+
 # Draw pie charts on maps
-(hapmap <- map_main + 
+hapmap <- map_main + 
   geom_point(data = hap_tib2, aes(x = lon, y = lat), size = 3) +
-  hap_tib2$subgrob)
+  hap_tib2$subgrob
 save_plot(paste0(path_output, "/03-Hapmap.svg"), hapmap,
-          base_height = 7, base_asp = 1 / 1)
+          base_height = 7, base_asp = 1.05) # base_asp adjusted to the L. reinii plot
 
 
 # Save data

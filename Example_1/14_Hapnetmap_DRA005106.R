@@ -1,5 +1,5 @@
 # 14_Hapnetmap_DRA005106.R
-# Last updated on 2023.5.26 by YK
+# Last updated on 2023.6.14 by YK
 # An R script to create haplotype networks and haplotype frequency maps
 # R 4.1.2
 # 
@@ -21,9 +21,8 @@ library(tidyverse); packageVersion("tidyverse") # ‘1.3.1’
 path_node <- "./13-DNfocal_DRA005106/01-Saved_object/focalnode.obj"
 path_phylo <- "./13-DNfocal_DRA005106/01-Saved_object/phylo_pre4.obj"
 path_shape <- "./14-shapefiles"
-
 ## Output directory
-path_output <- "./14-Hapnetmap_DRA005106.R"
+path_output <- "./14-Hapnetmap_DRA005106"
 dir.create(path_output, recursive=TRUE)
 
 # Load the phyloseq objects
@@ -67,9 +66,7 @@ get.hapnet <- function(x, y) {
   z <- list(net = net, reads = reads, nsamp = nsamp)
   return(z)
 }
-
 hapnet <- get.hapnet(phylo_pre4[["dada"]], focalnode[["dada"]])
-
 ## Test plot
 replot.hapnet <- function(hapnet, size = "reads", labels = TRUE,
                           scale.ratio = 100, cex = 1, lwd = 1,
@@ -81,29 +78,26 @@ replot.hapnet <- function(hapnet, size = "reads", labels = TRUE,
   if (size == "nsamp") {N <- hapnet[["nsamp"]]}
   xy <- hapnet[["xy"]]
   nhap <- length(N)
-  if (is.na(bg)) {
+  if (any(is.na(bg))) {
     if (nhap <= 5) {
-      par_bg <- wes_palette("Darjeeling1", n = nhap) %>%
-        alpha(alpha)
+      par_bg <- wes_palette("Darjeeling1", nhap) %>% alpha(alpha)
     }
     else {
       if (nhap <= 10) {
         par_bg <- c(wes_palette("Darjeeling1"),
-                    wes_palette("Darjeeling2", n = nhap - 5)) %>%
-          alpha(alpha)
+                    wes_palette("Darjeeling2", nhap - 5)) %>% alpha(alpha)
       }
       else {
         par_bg <- c(wes_palette("Darjeeling1"),
                     wes_palette("Darjeeling2"),
-                    wes_palette("Cavalcanti1", n = nhap - 10)) %>%
-          alpha(alpha)
+                    wes_palette("Cavalcanti1", nhap - 10)) %>% alpha(alpha)
       }
     }
   }
   else {
-    par_bg <- bg
+    par_bg <- bg %>% alpha(alpha)
   }
-  if (is.na(col)) {
+  if (any(is.na(col))) {
     par_col <- "black"
   }
   else {
@@ -117,15 +111,24 @@ replot.hapnet <- function(hapnet, size = "reads", labels = TRUE,
 }
 tmp <- replot.hapnet(hapnet,
                      size = "sqrtreads",
-                     scale.ratio = 3, cex = 1.5, alpha = .7, lwd = 3)
-##Notrun hapnet[["dada"]][["xy"]] <- tmp
+                     scale.ratio = 3, cex = 1.5, alpha = .7, lwd = 3,
+                     bg = wes_palette("Darjeeling1", n = 5)[c(1:2, 4:5)])
+## Notrun
+## hapnet$xy <- tmp
 rm(tmp)
+## Annotation
+locator(2)
+text(-28.49416, 43.95518, "Clade 2", cex = 1.8, font = 2)
+text(69.17520, -12.57141, "Clade 1", cex = 1.8, font = 2)
 ## Final plot
 svglite(paste0(path_output, "/02-Hapnet.svg"),
         width = 5, height = 3)
 replot.hapnet(hapnet,
               size = "sqrtreads",
-              scale.ratio = 10, cex = .8, alpha = .7, lwd = 1)
+              scale.ratio = 10, cex = .8, lwd = 1,
+              bg = wes_palette("Darjeeling1", n = 5)[c(1:2, 4:5)], alpha = .7)
+text(-25, 44, "Clade 2", cex = 1.2, font = 2)
+text(145, -5, "Clade 1", cex = 1.2, font = 2)
 dev.off()
 
 
@@ -146,7 +149,7 @@ land.01focal <- land.01 %>%
 land.001japan <- land.001 %>% aggregate(list(rep(1, 47)), head, n = 1)
 land.001japan[1, "name"] <- "日本"
 ## Mapping
-range_lon <- c(135.45, 136.75)
+range_lon <- c(135.45, 136.8)
 range_lat <- c(34.85, 35.95)
 range_lon2 <- c(126, 149)
 range_lat2 <- c(26, 46)
@@ -163,7 +166,7 @@ map_main <- ggplot() +
         axis.title = element_blank()) +
   annotation_north_arrow(location = "bl", which_north = "true",
                          height = unit(2, "cm"), width = unit(2, "cm"),
-                         pad_x = unit(0.5, "cm"), pad_y = unit(1, "cm"),
+                         pad_x = unit(1.1, "cm"), pad_y = unit(1, "cm"),
                          style = north_arrow_fancy_orienteering) +
   annotation_scale(location = "bl", width_hint = 0.25) +
   panel_border(color = "black")
@@ -178,8 +181,12 @@ map_inset <- ggplot() +
         panel.grid.major = element_blank(),
         axis.text = element_blank(),
         axis.ticks = element_blank(),
-        plot.margin = unit(c(0, 0, -.1, -.1), "null")) +
+        plot.margin = unit(c(0, -.5, -.1, -.6), "cm")) +
   panel_border(color = "black")
+## Test-plot the inset map for adjusting aspect ratio
+save_plot(paste0(path_output, "/test_inset.svg"), map_inset,
+          base_height = 7, base_asp = .93)
+map_inset_asp <- .93
 
 
 # Haplotype frequency data
@@ -212,31 +219,30 @@ hap_tib <- get.hapfreq(phylo_pre4[["dada"]], focalnode[["dada"]]) %>%
 hapid <- hap_tib %>% colnames() %>%
   str_detect(pattern = "^ASV") %>%
   subset(colnames(hap_tib), .)
+hapid
 ## Create pie chart by sampling location
 hap_tib2 <- hap_tib %>%
   tidyr::pivot_longer(cols = all_of(hapid),
                       names_to = "haplo", values_to = "reads") %>%
   tidyr::nest(data = c(haplo, reads)) %>%
   # Make a pie chart from each row and convert to grob
-  mutate(pie.grob = map(data,
-                        function(d) {
-                          ggplotGrob(
-                            ggplot(d, aes(x = 1, y = reads, fill = haplo)) +
-                              geom_col(
-                                color = "black", lwd = .4, alpha = .7,
-                                show.legend = FALSE
-                              ) +
-                              scale_fill_manual(
-                                values = wes_palette(
-                                  "Darjeeling1",
-                                  length(hapid)
-                                )
-                              ) +
-                              coord_polar(theta = "y") +
-                              theme_void()
-                          )
-                        }
-  )) %>%
+  mutate(
+    pie.grob = map(data,
+                   function(d) {
+                     ggplotGrob(
+                       ggplot(d, aes(x = 1, y = reads, fill = haplo)) +
+                         geom_col(
+                           color = "black", lwd = .4, alpha = .7,
+                           show.legend = FALSE
+                         ) +
+                         scale_fill_manual(
+                           values = wes_palette("Darjeeling1", 5)[c(1:2, 4:5)]
+                         ) +
+                         coord_polar(theta = "y") +
+                         theme_void()
+                     )
+                   }
+    )) %>%
   # convert each grob to an annotation_custom layer. Also adjust the radius
   #   value to a reasonable size.
   rowwise() %>%
@@ -250,11 +256,12 @@ hap_tib2 <- hap_tib %>%
 
 # Draw pie charts on maps
 hapmap <- map_main + hap_tib2$subgrob
-(map_final <- hapmap %>%
-    ggdraw() +
-    draw_plot(map_inset, x = 0.123, y = 0.67, width = 0.3, height = 0.3))
+map_final <- hapmap %>%
+  ggdraw() +
+  draw_plot(map_inset, scale = map_inset_asp, width = 0.33, height = 0.33,
+            x = 0.08, y = 0.655)
 save_plot(paste0(path_output, "/03-Hapmap.svg"), map_final,
-          base_height = 7, base_asp = 1 / 1)
+          base_height = 7, base_asp = 1.05)
 
 
 # Save data

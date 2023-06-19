@@ -1,6 +1,6 @@
 # 13_DNfocal_DRA010703.R
-# Last updated on 2023.5.26 by YK
-# An R script to generate graphical representations of the GMM-based denoising results in a focal species
+# Last updated on 2023.6.14 by YK
+# An R script to generate graphical representations of the GMM-based denoising results in the focal species, Mugil cephalus
 # R 4.1.2
 
 # Packages required
@@ -18,6 +18,8 @@ library(tidyverse); packageVersion("tidyverse") # 1.3.1
 path_input1 <- "./12-DNsmry_DRA010703/01-Saved_object/phylo_pre.obj"
 ## GMM-inferred ASV read count cutoff threshold
 path_input2 <- "./12-DNsmry_DRA010703/01-Saved_object/phylo_post.obj"
+## Fasta of reference sequences
+path_ref <- "./13-M_cephalus_ref.fa"
 ## Output directory
 path_output <- "./13-DNfocal_DRA010703"
 dir.create(path_output, recursive = TRUE)
@@ -43,7 +45,7 @@ plot.tree <- function(phyloseq.list, list.id,
     theme_tree2() +
     xlim(0, xmax)
 }
-plot.tree(phylo_pre, "dada", root.node = 1484, xmax = 2, text.size = .2)
+plot.tree(phylo_pre, "dada", root.node = 1484, xmax = 13.2, text.size = .3)
 
 # Replace trees with mammal-rooted trees
 rootnode <- list(dada = 1484, uno5 = 1709, uno2 = 506, mifs = 7689)
@@ -56,7 +58,7 @@ for (i in 1:length(phylo_pre2)) {
 rm(i)
 
 # Check if phyloseq trees were replaced with the mammal-rooted ones
-plot.tree(phylo_pre2, "mifs", xmax = 2, text.size = .2)
+plot.tree(phylo_pre2, "dada", xmax = 13.2, text.size = .3)
 
 # Update phyloseq taxon tables for better annotation and omitting non-fish (mammal) clade
 fsclass <- c("Actinopteri", "Chondrichthyes")
@@ -79,7 +81,7 @@ phylo_pre3 <- phylo_pre2 %>%
        })
 
 # Check if non-fish (mammal) clades were omitted from phyloseq trees
-plot.tree(phylo_pre3, "mifs", text.size = .2, xmax = 1.1)
+plot.tree(phylo_pre3, "dada", xmax = 2.6, text.size = .3)
 
 # Plot global trees with denoised ASVs annotated by color
 datnam <- phylo_pre %>% names() %>% as.list()
@@ -113,22 +115,71 @@ tree_glob_alp <- list(phylo_pre3, xmax, datnam) %>%
     return(p)
   })
 
-# Plot trees of a focal species 
-## Test plot for finding the node of focal clade
+
+# Plot trees of the focal species
+## Read reference sequence fasta
+ref <- Biostrings::readDNAStringSet(path_ref)
+## Find ASVs identical to the reference sequences
+find.identical<- function(DNAString, DNAStringset, type = "complete") {
+  ref <- DNAString %>% as.character()
+  seqs <- DNAStringset %>% as.character()
+  if (type == "complete") {
+    rownum <- match(ref, seqs)
+  }
+  if (type == "partial") {
+    rownum <- stringr::str_detect(ref, seqs) %>% which()
+  }
+  z <- DNAStringset[rownum]
+  return(z)
+}
+phylo_pre3 %>% lapply(
+  function(x) {
+    refseq(x) %>% find.identical(ref["NC003182_NWP1"], .)
+  }) # Returns "M. cephalus [0008]"
+phylo_pre3 %>% lapply(
+  function(x) {
+    refseq(x) %>% find.identical(ref["KM368340_NWP2"], .)
+  }) # Returns "M. cephalus [0062]"
+## Check sequence lengths, with arranging ASVs in decreasing order
+options("showHeadLines" = 60); options("showTailLines" = 60)
+phylo_pre3 %>% lapply(
+  function(x) {
+    dna <- speedyseq::filter_tax_table(x, abbtag == "M. cephalus") %>% refseq()
+    dna <- dna[order(Biostrings::width(dna), decreasing = TRUE), ]
+    return(dna)
+  })
+## Replace the ID names of the ASVs identical to the reference sequences
 phylo_pre4 <- phylo_pre3 %>% lapply(
   function(x) {
-    taxa_names(x) <- tax_table(x) %>% `[`(, "glob") %>% as.vector()
+    taxtab <- tax_table(x)
+    idseqnam1 <- refseq(x) %>%
+      find.identical(ref["NC003182_NWP1"], .) %>%
+      names()
+    idseqnam2 <- refseq(x) %>%
+      find.identical(ref["KM368340_NWP2"], .) %>%
+      names()
+    idseq1 <- taxtab[idseqnam1, ]
+    idseq2 <- taxtab[idseqnam2, ]
+    oldnam1 <- idseq1[, "glob"]
+    oldnam2 <- idseq2[, "glob"]
+    taxtab[idseqnam1, "glob"] <- paste0(oldnam1, ", NC003182")
+    taxtab[idseqnam2, "glob"] <- paste0(oldnam2, ", KM368340")
+    taxa_names(x) <- taxtab[, "glob"] %>% as.vector()
     return(x)
   }
 )
-plot.tree(phylo_pre4, "mifs", subset.node = 7401, text.size = 2, xmax = .05)
-## Publication-quality tree plot 
+## Test-plot the trees
+plot.tree(phylo_pre4, "dada", subset.node = 1358, text.size = 3, xmax = .07)
+plot.tree(phylo_pre4, "uno5", subset.node = 1562, text.size = 3, xmax = .04)
+plot.tree(phylo_pre4, "uno2", subset.node = 784, text.size = 3, xmax = .06)
+plot.tree(phylo_pre4, "mifs", subset.node = 7401, text.size = 1.5, xmax = .04)
+## Arrange the trees for publication
 focalnode <- list(dada = 1358, uno5 = 1562, uno2 = 784, mifs = 7401)
 linesize <- list(dada = .5, uno5 = .5, uno2 = .5, mifs = .2)
-labsize <- list(dada = 4, uno5 = 4, uno2 = 5, mifs = 1.5)
-xmax2 <- list(dada = .07, uno5 = .0407, uno2 = .0608, mifs = .037)
-tree_focal <- list(phylo_pre4, focalnode, linesize, labsize, xmax2, datnam) %>%
-  pmap(function(x, y, z, s, t, u) {
+labsize <- list(dada = 4, uno5 = 4, uno2 = 4, mifs = 1.5)
+xmax2 <- list(dada = .083, uno5 = .048, uno2 = .069, mifs = .0394)
+tree_focal <- list(phylo_pre4, focalnode, linesize, labsize, xmax2) %>%
+  pmap(function(x, y, z, s, t) {
     tree <- x %>% phy_tree() %>% treeio::tree_subset(node = y, levels_back = 0)
     taxdf <- x %>% tax_table() %>% as_tibble()
     p <- ggtree(tree, size = z) %<+% taxdf
@@ -138,22 +189,41 @@ tree_focal <- list(phylo_pre4, focalnode, linesize, labsize, xmax2, datnam) %>%
       scale_color_manual(values = c("black", "firebrick")) +
       theme_tree2(legend.position = "none") +
       xlim_tree(t)
-    save_plot(paste0(path_output, "/03-Focaltree_", u, ".svg"), p2,
+    return(p2)
+  })
+## Flip tree nodes for clade consistency with Nakagawa et al.'s (2016) tree
+tree_focal[["uno2"]] <- tree_focal[["uno2"]] %>%
+  flip(1, 8) %>% flip(2, 9) %>% flip(4, 7)
+## Annotate the major clades
+annode <- list(dada = c(30, 51), uno5 = c(26, 41), uno2 = c(6, 8), mifs = c(121, 230))
+annof <- list(dada = .055, uno5 = .032, uno2 = .046, mifs = .01)
+annosize <- list(dada = 4.5, uno5 = 4.5, uno2 = 4.5, mifs = 3.5)
+annotof <- list(dada = -0.0006, uno5 = -0.0004, uno2 = -0.0006, mifs = -0.0004)
+## Save the plots
+tree_focal2 <- list(tree_focal, annode, annof, annosize, annotof, datnam) %>%
+  pmap(function(p, n, of, s, tof, t) {
+    p2 <- p +
+      geom_cladelab(node = n[1], barcolor = "grey80", barsize = 9, offset = of,
+                    label = "NWP1", fontsize = s, offset.text = tof,
+                    hjust = "center", angle = 90, align = TRUE, textcolour = "white") +
+      geom_cladelab(node = n[1], barcolor = alpha("grey80", 0), barsize = 9, offset = of,
+                    label = "NWP1", fontsize = s, offset.text = tof,
+                    hjust = "center", angle = 90, align = TRUE) +
+      geom_cladelab(node = n[2], barcolor = "grey80", barsize = 9, offset = of,
+                    label = "NWP2", fontsize = s, offset.text = tof,
+                    hjust = "center", angle = 90, align = TRUE) +
+      geom_cladelab(node = n[2], barcolor = alpha("grey80", 0), barsize = 9, offset = of,
+                    label = "NWP2", fontsize = s, offset.text = tof,
+                    hjust = "center", angle = 90, align = TRUE)
+    save_plot(paste0(path_output, "/03-Focaltree_", t, ".svg"), p2,
               base_height = 7, base_asp = 1 / 1)
     return(p2)
   })
-## Flip the uno2 tree nodes for consistency
-tree_focal[["uno2"]] + geom_text(aes(label = node))
-tree_focal[["uno2"]] <- tree_focal[["uno2"]] %>% flip(2, 9)
-tree_focal[["uno2"]] <- tree_focal[["uno2"]] %>% flip(1, 8)
-tree_focal[["uno2"]] <- tree_focal[["uno2"]] %>% flip(4, 7)
-save_plot(paste0(path_output, "/03-Focaltree_uno2.svg"),
-          tree_focal[["uno2"]],
-          base_height = 7, base_asp = 1 / 1)
+
 
 # Plot tree with heatmap
-xmax3 <- list(dada = .078, uno5 = .045, uno2 = .072, mifs = .0385)
-tree_focal_heat <- list(phylo_pre4, tree_focal, datnam, xmax3) %>%
+xmax3 <- list(dada = .01, uno5 = .01, uno2 = .01, mifs = .01)
+tree_focal_heat <- list(phylo_pre4, tree_focal2, datnam, xmax3) %>%
   pmap(function(x, y, z, s) {
     focal <- y %>% `[[`("data") %>% filter(isTip == TRUE) %>% select(label) %>%
       pull()
@@ -181,11 +251,12 @@ tree_focal_heat <- list(phylo_pre4, tree_focal, datnam, xmax3) %>%
             legend.text = element_text(size = rel(1.1))) +
       xlab("Sample") +
       ylab(NULL)
-    comp.p <- p2 %>% aplot::insert_left(p, width = .7)
+    comp.p <- p2 %>% aplot::insert_left(p, width = .8)
     save_plot(paste0(path_output, "/04-FocaltreeHeat_", z, ".svg"), comp.p,
               base_height = 7, base_asp = 1.618 / 1)
     return(comp.p)
   })
+
 
 # Summary stats of haplotypes
 nhap <- map2(tree_focal, datnam,
@@ -201,6 +272,7 @@ nhap <- map2(tree_focal, datnam,
 nhap %>% bind_rows() %>%
   write.csv(paste0(path_output, "/05-dn_stat.csv"))
 
+
 # Save data
 ## Save R objects
 path_saved_object <- paste0(path_output, "/01-Saved_object")
@@ -209,6 +281,6 @@ saveRDS(focalnode, paste0(path_saved_object, "/focalnode", ".obj"))
 saveRDS(phylo_pre3, paste0(path_saved_object, "/phylo_pre3", ".obj"))
 saveRDS(phylo_pre4, paste0(path_saved_object, "/phylo_pre4", ".obj"))
 saveRDS(tree_glob, paste0(path_saved_object, "/tree_glob", ".obj"))
-# Save workspace and session info
+## Save workspace and session info
 save.image(paste0(path_output, "/dnfocal.RData"))
 writeLines(capture.output(sessionInfo()), paste0(path_output, "/dnfocal.info"))
