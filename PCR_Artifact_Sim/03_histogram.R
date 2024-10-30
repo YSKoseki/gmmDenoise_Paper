@@ -81,7 +81,7 @@ plot.hist <- function(
                  color = "firebrick", fill = NA) +
     scale_x_continuous(limit = c(0, xupper), breaks = seq(0, xupper, 1)) +
     coord_cartesian(ylim = c(0, 100), expand = FALSE) +
-    labs(x = "Log10(read size)", y = "Frequency") +
+    labs(x = "Log10(read count)", y = "Frequency") +
     theme(legend.position = c(.95, .85), legend.justification = c(1, 1)) +
     guides(
       fill = guide_legend(title = NULL),
@@ -117,7 +117,7 @@ plot.hist2 <- function(
     scale_y_continuous(
       limit = c(0, 2000), breaks = seq(0, 2000, 500), expand = c(0, 0)
     ) +
-    labs(x = "Log10(read size)", y = "Frequency") +
+    labs(x = "Log10(read count)", y = "Frequency") +
     theme(legend.position = c(.95, .85), legend.justification = c(1, 1)) +
     guides(
       fill = guide_legend(title = NULL),
