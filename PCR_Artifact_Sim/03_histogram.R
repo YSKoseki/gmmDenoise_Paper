@@ -71,12 +71,12 @@ plot.hist <- function(
     ) +
     geom_density(data = sequencing[sequencing$seq_type == "True", ],
                  aes(x = log_reads,
-                     y = ..density.. * 0.2 * sum(distr_tib[distr_tib$seq_type == "True", ]$count)),
+                     y = after_stat(density) * 0.2 * sum(distr_tib[distr_tib$seq_type == "True", ]$count)),
                  adjust = 4,
                  color = "black", fill = NA) +
     geom_density(data = sequencing[sequencing$seq_type == "False", ],
                  aes(x = log_reads,
-                     y = ..density.. * 0.2 * sum(distr_tib[distr_tib$seq_type == "False", ]$count)),
+                     y = after_stat(density) * 0.2 * sum(distr_tib[distr_tib$seq_type == "False", ]$count)),
                  adjust = 4,
                  color = "firebrick", fill = NA) +
     scale_x_continuous(limit = c(0, xupper), breaks = seq(0, xupper, 1)) +
@@ -104,12 +104,12 @@ plot.hist2 <- function(
     ) +
     geom_density(data = sequencing[sequencing$seq_type == "True", ],
                  aes(x = log_reads,
-                     y = ..density.. * 0.2 * sum(distr_tib[distr_tib$seq_type == "True", ]$count)),
+                     y = after_stat(density) * 0.2 * sum(distr_tib[distr_tib$seq_type == "True", ]$count)),
                  adjust = 4,
                  color = "black", fill = NA) +
     geom_density(data = sequencing[sequencing$seq_type == "False", ],
                  aes(x = log_reads,
-                     y = ..density.. * 0.2 * sum(distr_tib[distr_tib$seq_type == "False", ]$count)),
+                     y = after_stat(density) * 0.2 * sum(distr_tib[distr_tib$seq_type == "False", ]$count)),
                  adjust = 4,
                  color = "firebrick", fill = NA) +
     scale_x_continuous(
