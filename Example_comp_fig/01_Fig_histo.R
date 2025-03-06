@@ -38,10 +38,10 @@ theme_set(cowplot::theme_cowplot())
                                           expand = c(0,0), limits = c(0,150)
                                         ),
                                       labels=c(
-                                        "(a) Stream, \u03b1=2",
-                                        "(b) Stream, \u03b1=5",
-                                        "(c) Estuarine, \u03b1=2",
-                                        "(d) Estuarine, \u03b1=5"
+                                        "(a) Stream, \u03b1 = 2",
+                                        "(b) Stream, \u03b1 = 5",
+                                        "(c) Estuarine, \u03b1 = 2",
+                                        "(d) Estuarine, \u03b1 = 5"
                                       ),
                                       label_x=.18, label_y=1, hjust=-.1, vjust=2.2)
 )
