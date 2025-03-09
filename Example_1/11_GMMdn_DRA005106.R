@@ -1,5 +1,5 @@
 # 11_GMMdn_DRA005106.R
-# Last updated on 2023.5.1 by YK
+# Last updated on 2025.3.9 by YK
 # An R script to infer read count cut-off threshold for ASVs, based on Gaussian mixture modeling (GMM)
 # R 4.1.2
 
@@ -9,7 +9,7 @@ library(mixtools); packageVersion("mixtools") # 1.2.0
 library(cowplot); packageVersion("cowplot") # 1.1.1
 library(wesanderson); packageVersion("wesanderson") # 0.3.6
 library(tidyverse); packageVersion("tidyverse") # 1.3.1
-library(gmmDenoise); packageVersion("gmmDenoise") # 0.2.3
+library(gmmDenoise); packageVersion("gmmDenoise") # 0.3.1
 
 # Paths
 ## Input: the list of phyloseq objects
@@ -74,26 +74,21 @@ save_plot(paste0(path_output, "/04-Fig_pdf_grid.svg"), fig_pdf_grid, ncol=2, nro
 lower95_log <- gmm_fit %>% 
   lapply(function(x) {
     ncomp <- x$mu %>% length()
-    quantile(x, comp=1:ncomp)
+    quantile(x)
   })
-(thresh_tab <- list(dada=c(1, NA), uno5=c(NA, 1, NA), uno2=NA, mifs=c(NA, 1, NA)) %>% 
-    map2(lower95_log, function(x, y) x*y) %>% 
-    lapply(function(x) {
-      if (all(is.na(x))) NA
-      else na.omit(x)
-    }) %>% 
+thresh_tab <- lower95_log %>% 
     unlist() %>% 
     data.frame(log=.) %>% 
     rownames_to_column(var="data") %>% 
-    mutate(norm=ceiling(10^log)))
+    mutate(norm=ceiling(10^log))
 write.csv(thresh_tab[c(4, 1:3), ], paste0(path_output, "/05-thresh_tab.csv"))
 
 ## Draw vertical lines indicating 95-percentiles to the plots
-fig_pdf2 <- list(dada=c(1, NA), uno5=c(NA, 1, NA), uno2=NA, mifs=c(NA, 1, NA)) %>% 
-  map2(lower95_log, function(x, y) x*y) %>% 
+fig_pdf2 <- lower95_log %>% 
   map2(gmm_fit, .,
        function(x, y) {
-         autoplot(x, vline=y, xlim=c(1, 6), ylim=c(0, 200))
+         if (!is.na(y)) autoplot(x, vline=y, xlim=c(1, 6), ylim=c(0, 200))
+           else autoplot(x, xlim=c(1, 6), ylim=c(0, 200))
        })
 theme_set(cowplot::theme_cowplot())
 fig_pdf_grid2 <- fig_pdf2[c(4, 1:3)] %>% 

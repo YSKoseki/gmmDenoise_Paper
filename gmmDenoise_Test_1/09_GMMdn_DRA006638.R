@@ -1,5 +1,5 @@
 # 09_GMMdn_DRA006638.R
-# Last updated on 2023.4.28 by YK
+# Last updated on 2025.3.9 by YK
 # An R script to infer true ASVs by the denoising method based on Gaussian mixture modeling (GMM)
 # R 4.1.2
 
@@ -8,7 +8,7 @@ library(speedyseq); packageVersion("speedyseq") # 0.5.3.9018
 library(cowplot); packageVersion("cowplot") # 1.1.1
 library(wesanderson); packageVersion("wesanderson") # 0.3.6
 library(tidyverse); packageVersion("tidyverse") # 1.3.1
-library(gmmDenoise); packageVersion("gmmDenoise") # 0.2.3
+library(gmmDenoise); packageVersion("gmmDenoise") # 0.3.1
 
 # Paths
 ## Input: the list of phyloseq objects
@@ -152,23 +152,17 @@ save_plot(paste0(path_output, "/06-Fig_pdf_grid.svg"), fig_pdf_grid,
 lower95_log <- gmm_fit %>% 
   lapply(function(x) {
     ncomp <- x$mu %>% length()
-    quantile(x, comp=1:ncomp)
+    quantile(x)
   })
-(thresh_tab <- list(dada=c(1, NA), uno2=c(1, NA), nodn=c(NA, NA, 1, NA)) %>% 
-    map2(lower95_log, function(x, y) x*y) %>% 
-    lapply(function(x) {
-      if (all(is.na(x))) NA
-      else na.omit(x)
-    }) %>% 
+thresh_tab <- lower95_log %>% 
     unlist() %>% 
     data.frame(log=.) %>% 
     rownames_to_column(var="data") %>% 
-    mutate(norm=ceiling(10^log)))
+    mutate(norm=ceiling(10^log))
 write.csv(thresh_tab[c(3, 1, 2), ], paste0(path_output, "/07-thresh_tab.csv"))
 
 ## Draw vertical lines indicating 95-percentiles to the pdf plots
-fig_pdf2 <- list(dada=c(1, NA), uno2=c(1, NA), nodn=c(NA, NA, 1, NA)) %>% 
-  map2(lower95_log, function(x, y) x*y) %>% 
+fig_pdf2 <- lower95_log %>% 
   map2(gmm_fit, .,
        function(x, y) {
          autoplot(x, type="freq", nbins="Sturges", vline=y, xlim=c(0, 6))
