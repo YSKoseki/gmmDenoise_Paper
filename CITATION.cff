@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- given-names: "Yusuke"
+  family-names: "Koseki"
+  orcid: "https://orcid.org/0000-0001-9588-3018"
+title: "gmmDenoise_Paper"
+version: 1.0.0
+doi: 10.5281/zenodo.15016881
+date-released: 2025-03-13
+url: "https://github.com/YSKoseki/gmmDenoise_Paper"
