@@ -4,4 +4,4 @@
 [![DOI](https://zenodo.org/badge/540440691.svg)](https://zenodo.org/badge/latestdoi/540440691)
 <!-- badges: end -->
 
-Scripts used in Koseki et al. (In preparation)
+The code for analyses performed for Koseki et al.'s (submitted) paper, "gmmDenoise: a new method and R package for high-confidence sequence variant filtering in environmental DNA amplicon analysis."

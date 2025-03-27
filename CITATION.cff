@@ -4,8 +4,22 @@ authors:
 - given-names: "Yusuke"
   family-names: "Koseki"
   orcid: "https://orcid.org/0000-0001-9588-3018"
-title: "gmmDenoise_Paper"
-version: 1.0.0
+- given-names: "Hirohiko"
+  family-names: "Takeshima"
+  orcid: "https://orcid.org/0009-0000-0007-1333"
+- given-names: "Ryuji"
+  family-names: "Yoneda"
+- given-names: "Kaito"
+  family-names: "Katayanagi"
+- given-names: "Gen"
+  family-names: "Ito"
+  orcid: "https://orcid.org/0000-0002-9781-7206"
+- given-names: "Hiroki"
+  family-names: "Yamanaka"
+  orcid: "https://orcid.org/0000-0002-6193-1656"
+title: "Analysis scripts for Koseki et al.'s (submitted) gmmDenoise paper"
+version: 1
+type: software
 doi: 10.5281/zenodo.15016881
-date-released: 2025-03-13
+date-released: 2025-03-27
 url: "https://github.com/YSKoseki/gmmDenoise_Paper"
