@@ -34,4 +34,4 @@ Each script in these directories includes a brief header and inline comments exp
 - Tsuji, S., Miya, M., Ushio, M., Sato, H., Minamoto, T., & Yamanaka, H. (2020). Evaluating intraspecific genetic diversity using environmental DNA and denoising approach: A case study using tank water. Environmental DNA, 2(1), 42–52.
 
 ## Funding
-This work was supported by JSPS KAKENHI Grant Numbers JP21K12329 (YK) and JP22K14908 (GI).
+This work was supported by JSPS KAKENHI Grant Numbers JP21K12329 and JP22K14908.
