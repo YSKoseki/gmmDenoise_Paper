@@ -5,7 +5,7 @@
 <!-- badges: end -->
 
 ## Overview
-This repository includes several directories containing the R code used in the analyses presented in Koseki et al., "gmmDenoise: a new method and R package for high-confidence sequence variant filtering in environmental DNA amplicon analysis." Below is a brief overview of each directory:
+This repository includes several directories containing the R code used in the analyses presented in Koseki et al. (2025). Below is a brief overview of each directory:
 
 - `Example_1/`
 Contains scripts for analyzing stream fish community eDNA data from Nakagawa et al. (2018). The analysis serves as an illustrative example of how `gmmDenoise` can be used to derive accurate intraspecific diversity estimates and population genetic inferences.
@@ -29,6 +29,7 @@ Each script in these directories includes a brief header and inline comments exp
 
 ## References
 - Ahn, H., Kume, M., Terashima, Y., Ye, F., Kameyama, S., Miya, M., Yamashita, Y., & Kasai, A. (2020). Evaluation of fish biodiversity in estuaries using environmental DNA metabarcoding. PLOS ONE, 15(10), e0231127.
+- Koseki, Y., Takeshima, H., Yoneda, R., Katayanagi, K., Ito, G., & Yamanaka, H. (2025). _gmmDenoise_: a new method and _R_ package for high-confidence sequence variant filtering in environmental DNA amplicon analysis. Authorea.
 - Nakagawa, H., Yamamoto, S., Sato, Y., Sado, T., Minamoto, T., & Miya, M. (2018). Comparing local‐ and regional‐scale estimations of the diversity of stream fish using eDNA metabarcoding and conventional observation methods. Freshwater Biology, 63(6), 569–580.
 - Tsuji, S., Maruyama, A., Miya, M., Ushio, M., Sato, H., Minamoto, T., & Yamanaka, H. (2020). Environmental DNA analysis shows high potential as a tool for estimating intraspecific genetic diversity in a wild fish population. Molecular Ecology Resources, 20(5), 1248–1258.
 - Tsuji, S., Miya, M., Ushio, M., Sato, H., Minamoto, T., & Yamanaka, H. (2020). Evaluating intraspecific genetic diversity using environmental DNA and denoising approach: A case study using tank water. Environmental DNA, 2(1), 42–52.
