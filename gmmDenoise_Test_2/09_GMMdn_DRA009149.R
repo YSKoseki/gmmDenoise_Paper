@@ -1,5 +1,5 @@
 # 09_GMMdn_DRA009149.R
-# Last updated on 2025.3.9 by YK
+# Last updated on 2025.6.7 by YK
 # An R script to infer true ASVs by the denoising method based on Gaussian mixture modeling (GMM)
 # R 4.1.2
 
@@ -282,14 +282,17 @@ theme_set(cowplot::theme_cowplot())
     theme(axis.title.y=element_blank()),
   fig_cv[["nodn"]] +
     scale_y_continuous(limits=c(-2900, -2500)) +
-    xlab(""),
+    xlab("") +
+    annotate("text", x=2, y=-2538, label="*", size=10),
   fig_cv[["dada"]] +
     scale_y_continuous(limits=c(-840, -740)) +
-    theme(axis.title.y=element_blank()),
+    theme(axis.title.y=element_blank()) +
+    annotate("text", x=3, y=-758, label="*", size=10),
   fig_cv[["uno3"]] +
     scale_y_continuous(limits=c(-800, -600)) +
     xlab("") +
-    theme(axis.title.y=element_blank()),
+    theme(axis.title.y=element_blank()) +
+    annotate("text", x=2, y=-630, label="*", size=10),
   fig_pdf2[["nodn"]] +
     scale_y_continuous(limits=c(0, 1500), expand=c(0, 0)) +
     theme(legend.position=c(.96, .85)) +
