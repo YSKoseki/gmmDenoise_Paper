@@ -1,5 +1,5 @@
 # 12_DNsmry_DRA010703.R
-# Last updated on 2023.5.1 by YK
+# Last updated on 2025.6.7 by YK
 # An R script to evaluate denoising effects
 # R 4.1.2
 
@@ -173,17 +173,23 @@ smrystats %>%
   `[`(c(13:16, 1:12), ) %>%
   write.csv(paste0(path_output, "/05-diff_sp_by_cl.csv"))
 ## Identification of fish species
-temp <- smrystats %>% 
-  lapply(function(x) x[["fs_sp"]])
-temp[["dada"]] %>% 
-  full_join(temp[["uno5"]], suffix = c("", ".uno5"), by = "species") %>%
-  full_join(temp[["uno2"]], suffix = c("", ".uno2"), by = "species") %>%
-  full_join(temp[["mifs"]], suffix = c("", ".mifs"), by = "species") %>%
-  mutate(pre.dada = pre, post.dada = post, .keep = "unused") %>%
-  select(species, pre.dada, post.dada, everything()) %>%
-  `[`(, c(1, 8:9, 2:7)) %>%
-  write.csv(paste0(path_output, "/06-diff_fs_sp.csv"))
-rm(temp)
+smrystats %>% 
+  map2(
+    list("dada", "uno5", "uno2", "mifs"), 
+    function(x, y) {
+      x[["fs_sp"]] %>% 
+        mutate(
+          !!sym(y) := case_when(
+            is.na(pre) ~ NA,
+            is.na(post) ~ "discarded",
+            post == 1 ~ "retained"
+          )
+        ) %>% 
+        select(-pre, -post)
+    }) %>% 
+  reduce(full_join, by = c("species")) %>% 
+  arrange(species) %>% 
+  write_csv(paste0(path_output, "/06-diff_fs_sp.csv"))
 ## Identification of non-fish species
 temp2 <- smrystats %>% 
   lapply(function(x) x[["nonfs_sp"]])
