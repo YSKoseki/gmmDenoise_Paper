@@ -25,7 +25,7 @@ Contains scripts used to evaluate the performance of `gmmDenoise` with mock eDNA
 - `gmmDenoise_Test_2/`
 Contains scripts for another performance test of `gmmDenoise` using stream eDNA data of _P. altivelis_ from Tsuji, Maruyama et al. (2020).
 
-Each script in these directories includes a brief header and inline comments explaining its purpose and usage.
+Each script in these directories includes a brief header and inline comments explaining its purpose and usage. The core `gmmDenoise` package is available at the following repository: [https://github.com/YSKoseki/gmmDenoise](https://github.com/YSKoseki/gmmDenoise).
 
 ## References
 - Ahn, H., Kume, M., Terashima, Y., Ye, F., Kameyama, S., Miya, M., Yamashita, Y., & Kasai, A. (2020). Evaluation of fish biodiversity in estuaries using environmental DNA metabarcoding. PLOS ONE, 15(10), e0231127.
